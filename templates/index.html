@@ -1,15 +1,432 @@
-{% load tailwind_cli %}
+{% load static tailwind_cli %}
 <!DOCTYPE html>
 <html lang="ru" data-theme="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exoplanets | Dashboard</title>
-    {% tailwind_css %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#05070d">
+  <meta name="description" content="КАША ТИМ — исследуй экзопланеты и открывай новые миры.">
+  <title>КАША ТИМ — Путешествие к экзопланетам</title>
+  {% tailwind_css %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Three.js используется напрямую из JavaScript, без React и JSX. -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <style>
+    :root{--bg:#05070d;--text:#f5f7ff;--muted:#a5adbf;--line:rgba(255,255,255,.13);--accent:#9b8cff;--cyan:#80d8ff}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;background:var(--bg);color:var(--text);font-family:Manrope,system-ui,sans-serif;overflow-x:hidden}a{color:inherit;text-decoration:none}button{font:inherit}.site-shell{position:relative;isolation:isolate;background:#05070d}.container{width:min(1180px,calc(100% - 48px));margin-inline:auto}.eyebrow{display:inline-flex;align-items:center;gap:9px;color:#c4baff;font-size:11px;letter-spacing:.22em;text-transform:uppercase}.eyebrow:before{content:"";width:24px;height:1px;background:linear-gradient(90deg,var(--accent),transparent)}.section-title{font-size:clamp(34px,5.2vw,66px);line-height:1.04;letter-spacing:-.055em;font-weight:600;margin:18px 0}.section-copy{color:var(--muted);font-size:15px;line-height:1.9;max-width:590px}.gradient-text{background:linear-gradient(100deg,#fff 5%,#b9b1ff 50%,#79d8ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+    /* Навигация */
+    .topbar{position:fixed;z-index:50;top:14px;left:50%;transform:translateX(-50%);width:min(1180px,calc(100% - 32px));height:66px;padding:0 22px;display:flex;align-items:center;justify-content:space-between;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:rgba(10,13,22,.42);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transition:background .35s,border-color .35s,box-shadow .35s}.topbar.scrolled{background:rgba(8,10,17,.82);border-color:rgba(255,255,255,.17);box-shadow:0 12px 45px #0005}.brand{display:flex;align-items:center;gap:11px;font-weight:800;letter-spacing:.08em;font-size:14px;white-space:nowrap}.brand img{width:31px;height:31px;border-radius:50%;object-fit:cover}.nav-links{display:flex;align-items:center;gap:32px;color:#d2d5df;font-size:13px}.nav-links a{transition:color .2s}.nav-links a:hover{color:#fff}.nav-actions{display:flex;align-items:center;gap:10px}.nav-btn{border:1px solid rgba(255,255,255,.2);padding:10px 16px;border-radius:999px;font-size:12px;transition:.25s}.nav-btn:hover{background:#fff;color:#080a11}.nav-btn.primary{background:#f3f4fa;color:#080a11;border-color:#f3f4fa;font-weight:700}.menu-toggle{display:none;border:1px solid var(--line);background:#ffffff0c;color:white;border-radius:12px;width:42px;height:42px;font-size:20px}
+    /* Первый экран */
+    .hero{height:100svh;min-height:690px;position:relative;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 50% 53%,#17152d 0%,#090b15 43%,#03050a 78%)}#starfield{position:absolute;inset:0;width:100%;height:100%;z-index:0}.hero:after{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(4,6,12,.08),transparent 45%,#05070d 100%);pointer-events:none}.hero-content{position:relative;z-index:2;text-align:center;width:min(900px,calc(100% - 36px));padding-top:70px}.hero-kicker{display:inline-flex;align-items:center;gap:9px;padding:9px 15px;border:1px solid #b9aaff38;border-radius:999px;background:#9586ff12;color:#d8d2ff;font-size:11px;letter-spacing:.14em;text-transform:uppercase;backdrop-filter:blur(8px)}.hero h1{font-size:clamp(48px,8.5vw,106px);line-height:.99;letter-spacing:-.075em;font-weight:600;margin:28px 0 22px}.hero p{max-width:620px;margin:0 auto;color:#b2b8c9;font-size:clamp(14px,1.5vw,17px);line-height:1.85}.hero-buttons{display:flex;justify-content:center;gap:12px;margin-top:34px;flex-wrap:wrap}.button-main,.button-ghost{display:inline-flex;align-items:center;justify-content:center;gap:12px;padding:15px 22px;border-radius:999px;font-size:13px;font-weight:700;transition:transform .25s,background .25s}.button-main{background:#f3f4fa;color:#080a11}.button-main:hover{transform:translateY(-3px);background:#dcd7ff}.button-ghost{border:1px solid #ffffff36;color:#f5f6ff;background:#ffffff08}.button-ghost:hover{background:#ffffff18;transform:translateY(-3px)}.scroll-hint{position:absolute;z-index:3;bottom:30px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;color:#9ba3b8;font-size:9px;letter-spacing:.24em;text-transform:uppercase}.scroll-line{height:40px;width:1px;background:linear-gradient(#b9aaff,transparent);animation:scrollPulse 1.8s infinite}@keyframes scrollPulse{50%{transform:scaleY(.55);opacity:.45}}
+    /* Общие секции */
+    .section{position:relative;padding:130px 0;overflow:hidden}.section:before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 0%,#4b3f8a18,transparent 55%)}.section-inner{position:relative;z-index:1}.intro-grid{display:grid;grid-template-columns:1fr .85fr;gap:70px;align-items:center}.intro-visual{height:390px;position:relative;border:1px solid var(--line);border-radius:28px;overflow:hidden;background:radial-gradient(ellipse at 55% 50%,#443a7c55,transparent 55%),linear-gradient(145deg,#111522,#080a12);box-shadow:0 35px 100px #0007}.intro-visual iframe{width:100%;height:100%;border:0}.visual-glow{position:absolute;inset:auto 10% -20%;height:90px;background:#9b8cff33;filter:blur(55px)}.stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:32px}.stat{padding:17px 18px;border:1px solid var(--line);border-radius:16px;background:#ffffff06}.stat strong{display:block;font-size:25px;letter-spacing:-.05em}.stat span{display:block;color:#929bad;font-size:10px;margin-top:5px;letter-spacing:.08em;text-transform:uppercase}
+    /* Галактика — фон секции «Топ-50 планет», контент остаётся поверх */
+    .top-planets-section{position:relative;isolation:isolate;overflow:hidden}
+    .top-planets-section:before{z-index:1;background:linear-gradient(90deg,rgba(5,7,13,.82),rgba(5,7,13,.48) 58%,rgba(5,7,13,.28)),radial-gradient(ellipse at 50% 50%,transparent 0%,rgba(5,7,13,.16) 70%,rgba(5,7,13,.55) 100%)}
+    #galaxyfield{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;opacity:.9}
+    .top-planets-section .section-inner{z-index:2}
+    .top-planets-section .intro-grid{grid-template-columns:1fr}
+    .top-planets-section .intro-grid>.reveal{max-width:700px}
+    /* Обсерватория */
+    .observatory{padding-top:80px}.observatory-card{position:relative;min-height:490px;border:1px solid var(--line);border-radius:30px;overflow:hidden;background:#090d17}.observatory-card img{position:absolute;width:100%;height:100%;inset:0;object-fit:cover;opacity:.75}.observatory-card:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#05070de8 0%,#05070d99 45%,transparent 100%),linear-gradient(0deg,#05070d66,transparent 60%)}.observatory-copy{position:relative;z-index:2;padding:65px;max-width:620px}.observatory-copy .section-title{font-size:clamp(34px,4.6vw,58px)}
+    /* Чёрная дыра */
+    .blackhole-section{padding:110px 0 140px}.blackhole-wrap{position:relative;min-height:560px;display:grid;place-items:center;text-align:center;overflow:hidden;border-radius:30px;border:1px solid #ffffff12;background:radial-gradient(ellipse at 50% 52%,#25120f 0%,#0b0a10 35%,#05070d 70%)}.blackhole-art{position:absolute;width:min(680px,90vw);aspect-ratio:1;border-radius:50%;background:radial-gradient(ellipse at center,#000 0 23%,transparent 24%),conic-gradient(from 20deg,transparent,#ffb46b66,#fff1d0aa,#b16dff44,transparent 65%);filter:blur(12px);opacity:.7;animation:holeSpin 24s linear infinite}.blackhole-art:before{content:"";position:absolute;inset:22%;border-radius:50%;border:2px solid #ffd5a588;box-shadow:0 0 24px #ff9d5a99,0 0 80px #ff8c3a55,inset 0 0 35px #ffb16b55}.blackhole-art:after{content:"";position:absolute;inset:32%;border-radius:50%;background:#000;box-shadow:0 0 70px 35px #000}.blackhole-copy{position:relative;z-index:2;padding:50px 24px}.blackhole-copy h2{font-size:clamp(40px,7vw,82px);letter-spacing:-.07em;line-height:1;margin:22px 0}.blackhole-copy p{color:#b8b5bd;font-size:15px;line-height:1.8;max-width:560px;margin:0 auto 28px}@keyframes holeSpin{to{transform:rotate(360deg)}}
+    /* О проекте — Portal Field как полноэкранный фон под текстом */
+    #project.project-section{position:relative;min-height:690px;padding:130px 0;display:flex;align-items:center;isolation:isolate;overflow:hidden;background:#03050b}
+    #portal-field{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;outline:0}
+    #project.project-section:before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(3,5,11,.34),rgba(3,5,11,.18) 50%,rgba(3,5,11,.42)),radial-gradient(ellipse at center,transparent 15%,rgba(3,5,11,.22) 75%,rgba(3,5,11,.72) 100%)}
+    .project-grid{position:relative;z-index:2;display:block;width:min(1180px,calc(100% - 48px));margin-inline:auto}
+    .project-copy{max-width:850px;margin-inline:auto;text-align:center}
+    .project-copy .section-title{font-size:clamp(48px,8vw,100px);line-height:.99;margin:0 0 24px}
+    .project-copy .section-copy{max-width:690px;margin-inline:auto;color:#d0d5e3;font-size:clamp(15px,1.6vw,18px)}
+    .project-points{display:grid;gap:13px;margin-top:28px}.project-point{display:flex;gap:13px;align-items:flex-start;color:#c5cada;font-size:13px;line-height:1.7}.project-point i{font-style:normal;display:grid;place-items:center;flex:none;width:25px;height:25px;border-radius:50%;background:#9b8cff20;color:#c7bcff}
+    /* Hyperdrive */
+    .launch-section{padding:100px 0 150px}.launch-card{min-height:510px;position:relative;overflow:hidden;border:1px solid #ffffff19;border-radius:30px;background:radial-gradient(ellipse at 50% 48%,#242044 0%,#0b0d18 40%,#05070d 75%);display:grid;place-items:center;text-align:center}.launch-card:before,.launch-card:after{content:"";position:absolute;width:150%;height:1px;left:-25%;top:50%;background:linear-gradient(90deg,transparent,#9d8cff99,transparent);transform:rotate(-25deg);box-shadow:0 0 35px #9b8cff}.launch-card:after{transform:rotate(25deg);opacity:.5}.launch-content{position:relative;z-index:2;padding:40px 24px}.launch-content h2{font-size:clamp(42px,7vw,82px);line-height:1;letter-spacing:-.07em;margin:20px 0}.launch-content p{max-width:560px;color:#aeb5c8;line-height:1.8;margin:0 auto 30px;font-size:14px}.launch-orb{position:absolute;width:210px;height:210px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f5eaff,#8d81d5 18%,#27234d 48%,#070912 72%);box-shadow:0 0 100px #897bff55;opacity:.28;animation:orbFloat 7s ease-in-out infinite}@keyframes orbFloat{50%{transform:translateY(-24px) scale(1.08)}}
+    /* Земля и подвал */
+    .earth-transition{height:170px;position:relative;overflow:hidden;background:linear-gradient(180deg,#05070d 0%,#111b2c 45%,#d6e0e7 100%)}.earth-transition:before{content:"";position:absolute;inset:-50% -20% 0;border-radius:50%;background:radial-gradient(ellipse at center,#e6f2ff99,transparent 65%);filter:blur(30px)}.earth-section{min-height:620px;position:relative;display:flex;align-items:flex-end;overflow:hidden;background:#c5d5df}.earth-section img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 57%}.earth-section:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(5,12,13,.66),transparent 70%),linear-gradient(90deg,#08101866,transparent 75%)}.earth-copy{position:relative;z-index:2;padding:85px 0 75px}.earth-copy .eyebrow{color:#e3efff}.earth-copy h2{font-size:clamp(42px,7vw,86px);line-height:1;letter-spacing:-.07em;margin:18px 0 0;max-width:850px}.footer{position:relative;background:#dce6e7;color:#101a20;padding:58px 0 28px;overflow:hidden}.footer:before{content:"";position:absolute;inset:0;background:linear-gradient(120deg,#edf1e8,#c8d9d9 55%,#e4e5d9)}.footer-inner{position:relative;z-index:1}.footer-top{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:40px;padding-bottom:45px}.footer-brand{font-size:20px;font-weight:800;letter-spacing:.06em}.footer p{color:#526066;font-size:12px;line-height:1.8;max-width:310px}.footer h4{font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin:5px 0 17px}.footer-links{display:grid;gap:11px;color:#46545b;font-size:12px}.footer-links a:hover{color:#000}.footer-bottom{border-top:1px solid #17272b24;padding-top:20px;display:flex;justify-content:space-between;gap:20px;color:#69777a;font-size:10px}
+    /* Появление секций */
+    .reveal{opacity:0;transform:translateY(34px);transition:opacity .9s ease,transform .9s cubic-bezier(.2,.7,.2,1)}.reveal.visible{opacity:1;transform:translateY(0)}
+    @media(max-width:900px){.nav-links{gap:17px}.nav-actions .nav-btn:first-child{display:none}.intro-grid,.project-grid{grid-template-columns:1fr;gap:38px}.intro-visual{height:340px}.observatory-copy{padding:45px}.footer-top{grid-template-columns:1fr 1fr}.footer-top>div:first-child{grid-column:1/-1}}
+    @media(max-width:650px){#project.project-section{min-height:620px;padding:100px 0}.project-grid{width:calc(100% - 34px)}.project-copy .section-title{font-size:clamp(44px,12vw,70px)}.container{width:min(100% - 34px,1180px)}.topbar{top:9px;width:calc(100% - 18px);height:58px;padding:0 13px;border-radius:15px}.brand{font-size:12px}.brand img{width:27px;height:27px}.menu-toggle{display:block}.nav-links{display:none;position:absolute;top:66px;left:0;right:0;padding:18px;border:1px solid var(--line);border-radius:16px;background:rgba(7,10,17,.96);backdrop-filter:blur(18px);flex-direction:column;align-items:stretch;gap:0}.nav-links.open{display:flex}.nav-links a{padding:13px 8px;border-bottom:1px solid #ffffff12}.nav-actions{margin-left:auto;margin-right:9px}.nav-btn{padding:9px 12px;font-size:10px}.hero{min-height:650px}.hero h1{font-size:clamp(48px,14vw,76px)}.section{padding:88px 0}.intro-visual{height:280px}.stat-strip{grid-template-columns:1fr;gap:8px}.stat{display:flex;align-items:center;justify-content:space-between}.stat strong{font-size:20px}.observatory-card{min-height:540px}.observatory-card:after{background:linear-gradient(0deg,#05070df2 0%,#05070d99 55%,transparent 100%)}.observatory-copy{padding:30px 24px;display:flex;flex-direction:column;justify-content:flex-end;min-height:540px}.blackhole-wrap{min-height:480px}.portal{height:320px}.launch-card{min-height:470px}.earth-section{min-height:520px}.earth-copy{padding:65px 0}.footer-top{grid-template-columns:1fr 1fr;gap:30px 18px}.footer-bottom{flex-direction:column}.section-copy{font-size:14px}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.reveal{opacity:1;transform:none}}
+
+    /* Финальные правки по референсам */
+    .hero-kicker,.scroll-hint{display:none!important}
+    .intro-visual.galaxy-visual{background:#02040b;isolation:isolate}
+    #galaxyfield{position:absolute;inset:0;width:100%;height:100%;display:block}
+    .galaxy-vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 0 34%,rgba(1,3,9,.18) 68%,#02040b 100%)}
+    .earth-atmosphere{height:230px;position:relative;overflow:hidden;margin-top:-1px;background:linear-gradient(180deg,#05070d 0%,#101a2c 23%,#9fb8ca 64%,#edf4f5 100%)}
+    .atmosphere-glow{position:absolute;left:-10%;right:-10%;bottom:-95px;height:250px;border-radius:50%;background:radial-gradient(ellipse at center,#fff 0%,#d8e9f3 35%,#8faec5 65%,transparent 76%);filter:blur(22px);opacity:.95}
+    .cloud{position:absolute;bottom:-65px;width:65%;height:170px;border-radius:50%;background:radial-gradient(ellipse at 50% 50%,#fff 0%,#f4f8fa 35%,rgba(235,244,249,.7) 57%,transparent 73%);filter:blur(23px);opacity:.9;animation:cloudDrift 22s ease-in-out infinite alternate}
+    .cloud-one{left:-15%}.cloud-two{right:-17%;bottom:-80px;animation-duration:28s;opacity:.8}.cloud-three{left:28%;bottom:-105px;width:50%;animation-duration:34s;opacity:.65}
+    @keyframes cloudDrift{to{transform:translateX(7%) translateY(-14px)}}
+    .earth-section{min-height:690px;align-items:center;background:#eef3ed;isolation:isolate}
+    .earth-section img{object-position:center 57%;filter:saturate(.96)}
+    .earth-overlay{position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(244,248,242,.04) 0%,rgba(244,248,242,.18) 42%,rgba(244,248,242,.82) 100%),linear-gradient(0deg,rgba(4,12,12,.12),transparent 45%)}
+    .earth-copy{z-index:2;width:min(1180px,calc(100% - 48px));padding:90px 0;display:flex;justify-content:flex-end;align-items:center}
+    .earth-copy h2{max-width:560px;text-align:right;color:#17221d;font-size:clamp(38px,5.8vw,72px);line-height:1.08;letter-spacing:-.065em;text-shadow:0 2px 20px #ffffff66}
+    /* Hyperdrive: обычные HTML/CSS/JS */
+    /* Убираем только верхний отступ перед Hyperdrive: блоки стыкуются, высота и ширина Portal Field не меняются. */
+    .launch-section{padding:0 0 125px}
+    .hyperdrive{height:min(760px,82vh);min-height:570px;position:relative;width:100%;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#000;border:1px solid #ffffff12;border-radius:4px;isolation:isolate}
+    #hyperdrive-stars{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+    .hyperdrive-shade{position:absolute;inset:0;z-index:1;background:radial-gradient(ellipse at center,transparent 10%,rgba(0,0,0,.16) 55%,#000 100%);pointer-events:none}
+    .hyperdrive-content{position:relative;z-index:2;width:min(760px,calc(100% - 38px));padding:32px 12px;text-align:center;animation:hyperFade .9s ease both}
+    .hyperdrive-badge{display:inline-flex;align-items:center;gap:10px;padding:9px 16px;border:1px solid #7564ff55;border-radius:999px;background:#17132caa;color:#e4e0ff;font-size:13px;font-weight:700;backdrop-filter:blur(8px)}
+    .hyperdrive-badge span{color:#a99bff;font-size:17px}
+    .hyperdrive-content h2{font-size:clamp(56px,9vw,100px);font-weight:800;letter-spacing:-.07em;line-height:1;margin:30px 0 20px;background:linear-gradient(180deg,#fff,#9da2b2);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .hyperdrive-content p{max-width:650px;margin:0 auto 36px;color:#aab1c1;font-size:clamp(15px,1.8vw,19px);line-height:1.7}
+    .hyperdrive-button{display:inline-flex;align-items:center;gap:14px;padding:18px 30px;border-radius:12px;background:#fff;color:#08090d;font-size:15px;font-weight:700;transition:transform .25s,background .25s}
+    .hyperdrive-button:hover{transform:translateY(-3px);background:#dedcff}
+    .hyperdrive-button span{font-size:22px;line-height:1}
+    @keyframes hyperFade{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:650px){.earth-atmosphere{height:160px}.earth-section{min-height:560px}.earth-copy{width:calc(100% - 34px);justify-content:center}.earth-copy h2{text-align:center;font-size:clamp(38px,10vw,58px)}.earth-overlay{background:linear-gradient(0deg,rgba(242,247,241,.72),rgba(242,247,241,.08) 80%)}.hyperdrive{min-height:540px;height:70vh}.hyperdrive-content h2{font-size:clamp(52px,15vw,78px)}.hyperdrive-content p{font-size:14px}}
+  </style>
 </head>
-<body class="bg-base-300 text-base-content min-h-screen">
+<body>
+<div class="site-shell">
+  <header class="topbar" id="topbar">
+    <a class="brand" href="#home" aria-label="КАША ТИМ — на главную"><img src="https://avatars.mds.yandex.net/i?id=e1041dac2fa63528e36df7617a8dc47c_l-5089089-images-thumbs&n=13" alt="Логотип"><span>КАША ТИМ</span></a>
+    <nav class="nav-links" id="navLinks" aria-label="Главная навигация"><a href="#about">О нас</a><a href="#project">О проекте</a></nav>
+    <div class="nav-actions"><a class="nav-btn" href="#contacts">Войти</a><a class="nav-btn primary" href="#launch">Начать</a></div>
+    <button class="menu-toggle" id="menuToggle" aria-label="Открыть меню" aria-expanded="false">☰</button>
+  </header>
 
-    <!-- Навигация -->
+  <main>
+    <section class="hero" id="home"><canvas id="starfield" aria-hidden="true"></canvas><div class="hero-content"><h1>За пределами<br><span class="gradient-text">нашей системы</span></h1><p>Тысячи миров. Миллионы возможностей. Отправляйся в путешествие по экзопланетам и узнай, насколько удивительной может быть Вселенная.</p></div></section>
 
+    <section class="section top-planets-section" id="top-planets"><canvas id="galaxyfield" aria-hidden="true"></canvas><div class="container section-inner intro-grid"><div class="reveal"><h2 class="section-title">Топ-50 планет,<br><span class="gradient-text">похожих на Землю</span></h2><p class="section-copy">Где-то далеко от нас вращаются планеты, которые могут напоминать наш дом. Мы собираем интересные открытия и превращаем сложные астрономические данные в понятное путешествие.</p><div class="stat-strip"><div class="stat"><strong>50</strong><span>Планет в подборке</span></div><div class="stat"><strong>∞</strong><span>Миров для открытия</span></div><div class="stat"><strong>1</strong><span>Общий дом</span></div></div></div></div></section>
+
+    <section class="section observatory" id="discovery"><div class="container section-inner"><div class="observatory-card reveal"><img src="https://avatars.mds.yandex.net/i?id=14e2d413c556962612e2d0264a29e5dd_l-10680870-images-thumbs&n=13" alt="Астрономическая обсерватория под звёздным небом" loading="lazy"><div class="observatory-copy"><h2 class="section-title">Миллионы миров.<br><span class="gradient-text">И каждый уникален.</span></h2><p class="section-copy">За пределами Солнечной системы существуют миллионы потенциальных миров. Учёные находят их по едва заметным изменениям света далёких звёзд — и каждое открытие приближает нас к пониманию Вселенной.</p></div></div></div></section>
+
+    <section class="section blackhole-section" id="about"><div class="container section-inner"><div class="blackhole-wrap reveal"><div class="blackhole-art" aria-hidden="true"></div><div class="blackhole-copy"><h2>КАША ТИМ<br></h2><p>Космос — просто для каждого человека. Мы хотим сделать исследование далёких миров доступным, наглядным и по-настоящему увлекательным.</p></div></div></div></section>
+
+    <!-- Portal Field: полноразмерный анимированный фон, текст поверх него -->
+    <section class="section project-section" id="project" aria-label="О проекте">
+      <canvas id="portal-field" aria-hidden="true"></canvas>
+      <div class="project-grid">
+        <div class="project-copy reveal">
+          <h2 class="section-title">За пределами<br><span class="gradient-text">нашей системы</span></h2>
+          <p class="section-copy">Тысячи миров. Миллионы возможностей. Отправляйся в путешествие по экзопланетам и узнай, насколько удивительной может быть Вселенная.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section launch-section" id="launch"><div class="container section-inner"><div class="hyperdrive reveal" id="hyperdrive"><canvas id="hyperdrive-stars" aria-hidden="true"></canvas><div class="hyperdrive-shade"></div><div class="hyperdrive-content"><h2>Вперед на встречу вселенной</h2><p>Открой новые миры на скорости света. Исследуй экзопланеты, сравнивай их характеристики и отправляйся за пределы известного.</p><a class="hyperdrive-button" href="/planets/">Начать исследование</a></div></div></div></section>
+
+    <div class="earth-atmosphere" aria-hidden="true"><div class="atmosphere-glow"></div><div class="cloud cloud-one"></div><div class="cloud cloud-two"></div><div class="cloud cloud-three"></div></div>
+    <section class="earth-section" id="contacts" aria-label="Наш общий дом"><img src="{% static 'image/earth.png' %}" alt="Зелёные долины и небольшой дом среди природы" loading="lazy"><div class="earth-overlay"></div><div class="container earth-copy reveal"><h2>А это наш маленький<br>мир на фоне космоса.</h2></div></section>
+  </main>
+</div>
+
+<script>
+  // Portal Field: автономная реализация на Three.js, без React, JSX и iframe.
+  (() => {
+    const canvas = document.getElementById('portal-field');
+    const host = canvas?.parentElement;
+    if (!canvas || !host) return;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let renderer, scene, camera, material, geometry, mesh, raf = 0, resizeObserver;
+    let pointerX = 0, pointerY = 0, targetX = 0, targetY = 0, startedAt = 0;
+
+    const vertexShader = `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `;
+
+    const fragmentShader = `
+      precision highp float;
+      uniform vec2 u_resolution;
+      uniform float u_time;
+      uniform vec2 u_mouse;
+      varying vec2 vUv;
+
+      float hash(vec2 p) {
+        return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+      }
+      float noise(vec2 p) {
+        vec2 i = floor(p), f = fract(p);
+        f = f*f*(3.0-2.0*f);
+        return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), f.x),
+                   mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), f.x), f.y);
+      }
+      void main() {
+        vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+        float aspect = u_resolution.x / max(u_resolution.y, 1.0);
+        vec2 p = uv - 0.5;
+        p.x *= aspect;
+
+        float t = u_time * 0.22;
+        vec2 mouse = (u_mouse - 0.5) * vec2(aspect, 1.0) * 0.10;
+        float n1 = noise(p * 5.0 + vec2(t, -t * 0.7));
+        float n2 = noise(p * 10.0 - vec2(t * 0.6, t));
+        float warp = (n1 - 0.5) * 0.055 + (n2 - 0.5) * 0.018;
+        float radius = length(p - mouse * 0.22);
+        float angle = atan(p.y, p.x);
+        float wobble = sin(angle * 3.0 + t * 1.8) * 0.012 + cos(angle * 5.0 - t) * 0.006;
+        float ringRadius = 0.255 + warp + wobble;
+        float ringDist = abs(radius - ringRadius);
+        float ring = exp(-pow(ringDist / 0.012, 2.0));
+        float outerGlow = exp(-pow(ringDist / 0.060, 2.0));
+        float innerGlow = exp(-pow((radius - 0.205) / 0.075, 2.0));
+
+        float arcA = smoothstep(-0.35, 0.08, sin(angle * 1.0 + t * 0.55));
+        float arcB = smoothstep(-0.25, 0.25, sin(angle * 1.0 - t * 0.38 + 2.1));
+        float arcMask = max(arcA, arcB * 0.72);
+        float fineArc = exp(-pow((radius - (ringRadius + 0.025)) / 0.004, 2.0)) * arcMask;
+
+        vec3 deep = vec3(0.008, 0.015, 0.040);
+        vec3 blue = vec3(0.20, 0.48, 1.00);
+        vec3 cyan = vec3(0.40, 0.86, 1.00);
+        vec3 violet = vec3(0.48, 0.30, 1.00);
+        float pulse = 0.78 + 0.22 * sin(t * 2.0 + angle * 2.0);
+
+        vec3 color = deep;
+        color += blue * outerGlow * 0.34;
+        color += mix(blue, violet, 0.5 + 0.5 * sin(angle * 2.0 - t)) * ring * pulse * 1.55;
+        color += cyan * fineArc * 0.75;
+        color += violet * innerGlow * 0.13;
+
+        float core = 1.0 - smoothstep(0.115, 0.145, radius);
+        float coreEdge = exp(-pow((radius - 0.14) / 0.012, 2.0));
+        color = mix(color, vec3(0.004, 0.008, 0.020), core * 0.92);
+        color += vec3(0.55, 0.78, 1.0) * coreEdge * 0.75;
+
+        float vignette = 1.0 - smoothstep(0.34, 0.72, length(p / vec2(max(aspect, 1.0), 1.0)));
+        color *= vignette;
+        float alpha = clamp(max(max(ring * 0.95, outerGlow * 0.72), max(innerGlow * 0.28, coreEdge)), 0.0, 1.0);
+        alpha *= vignette;
+        gl_FragColor = vec4(color, max(alpha, 0.08));
+      }
+    `;
+
+    function init() {
+      if (!window.THREE) {
+        canvas.classList.add('portal-fallback');
+        console.error('Three.js не загрузился. Проверь подключение к CDN.');
+        return;
+      }
+      try {
+        renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'high-performance' });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.setClearColor(0x03050b, 1);
+        scene = new THREE.Scene();
+        camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        geometry = new THREE.PlaneBufferGeometry(2, 2);
+        material = new THREE.ShaderMaterial({
+          vertexShader,
+          fragmentShader,
+          uniforms: {
+            u_resolution: { value: new THREE.Vector2(1, 1) },
+            u_time: { value: 0 },
+            u_mouse: { value: new THREE.Vector2(0.5, 0.5) }
+          },
+          transparent: true,
+          depthWrite: false
+        });
+        mesh = new THREE.Mesh(geometry, material);
+        scene.add(mesh);
+        resize();
+        if ('ResizeObserver' in window) {
+          resizeObserver = new ResizeObserver(resize);
+          resizeObserver.observe(host);
+        } else {
+          window.addEventListener('resize', resize, { passive: true });
+        }
+        host.addEventListener('pointermove', onPointerMove, { passive: true });
+        host.addEventListener('pointerleave', onPointerLeave, { passive: true });
+        startedAt = performance.now();
+        render(startedAt);
+      } catch (error) {
+        console.error('Не удалось запустить Portal Field:', error);
+      }
+    }
+
+    function resize() {
+      if (!renderer || !material) return;
+      const width = Math.max(1, host.clientWidth);
+      const height = Math.max(1, host.clientHeight);
+      renderer.setSize(width, height, false);
+      material.uniforms.u_resolution.value.set(
+        Math.floor(width * renderer.getPixelRatio()),
+        Math.floor(height * renderer.getPixelRatio())
+      );
+    }
+
+    function onPointerMove(event) {
+      const rect = host.getBoundingClientRect();
+      targetX = THREE.MathUtils.clamp((event.clientX - rect.left) / rect.width, 0, 1);
+      targetY = THREE.MathUtils.clamp(1 - (event.clientY - rect.top) / rect.height, 0, 1);
+    }
+    function onPointerLeave() { targetX = 0.5; targetY = 0.5; }
+
+    function render(now) {
+      raf = requestAnimationFrame(render);
+      const elapsed = reducedMotion ? 0 : (now - startedAt) / 1000;
+      pointerX += (targetX - pointerX) * 0.045;
+      pointerY += (targetY - pointerY) * 0.045;
+      material.uniforms.u_time.value = elapsed;
+      material.uniforms.u_mouse.value.set(pointerX || 0.5, pointerY || 0.5);
+      renderer.render(scene, camera);
+    }
+
+    function destroy() {
+      cancelAnimationFrame(raf);
+      resizeObserver?.disconnect();
+      window.removeEventListener('resize', resize);
+      host.removeEventListener('pointermove', onPointerMove);
+      host.removeEventListener('pointerleave', onPointerLeave);
+      geometry?.dispose();
+      material?.dispose();
+      renderer?.dispose();
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init, { once: true });
+    } else {
+      init();
+    }
+    window.addEventListener('pagehide', destroy, { once: true });
+  })();
+
+  // Галактика из частиц: та же анимация используется в карточке и фоном первого экрана.
+  (() => {
+    const canvases = [
+      document.getElementById('galaxyfield')
+    ].filter(Boolean);
+    if (!canvases.length) return;
+
+    canvases.forEach(canvas => {
+      const ctx = canvas.getContext('2d');
+      let w = 0, h = 0, particles = [], raf = 0;
+
+      const resize = () => {
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        w = canvas.clientWidth;
+        h = canvas.clientHeight;
+        canvas.width = w * dpr;
+        canvas.height = h * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const count = Math.min(1800, Math.max(650, Math.floor(w * h / 230)));
+        particles = Array.from({ length: count }, () => {
+          const a = Math.random() * Math.PI * 2;
+          const radius = Math.pow(Math.random(), .62) * Math.min(w, h) * .43;
+          return {
+            a,
+            r: radius,
+            sz: Math.random() * 1.25 + .2,
+            alpha: Math.random() * .75 + .18,
+            arm: Math.random() < .5 ? -1 : 1,
+            phase: Math.random() * 6.28
+          };
+        });
+      };
+
+      const draw = t => {
+        ctx.clearRect(0, 0, w, h);
+        const cx = w / 2, cy = h / 2;
+        const radius = Math.min(w, h) * .47;
+        const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+        glow.addColorStop(0, 'rgba(224,235,255,.95)');
+        glow.addColorStop(.12, 'rgba(145,174,255,.32)');
+        glow.addColorStop(.42, 'rgba(65,104,190,.12)');
+        glow.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, w, h);
+
+        for (const particle of particles) {
+          const twist = particle.a + particle.arm * particle.r * .002 + (t * .000018 * particle.arm);
+          const x = cx + Math.cos(twist) * particle.r;
+          const y = cy + Math.sin(twist) * particle.r * .43;
+          const twinkle = .55 + .45 * Math.sin(t * .001 + particle.phase);
+          ctx.beginPath();
+          ctx.arc(x, y, particle.sz, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(220,232,255,${particle.alpha * twinkle})`;
+          ctx.fill();
+        }
+        raf = requestAnimationFrame(draw);
+      };
+
+      resize();
+      draw(0);
+      window.addEventListener('resize', () => {
+        cancelAnimationFrame(raf);
+        resize();
+        draw(0);
+      }, { passive: true });
+    });
+  })();
+
+  // Hyperdrive: звёзды летят к зрителю, скорость реагирует на положение мыши.
+  (() => {
+    const canvas=document.getElementById('hyperdrive-stars');if(!canvas)return;const ctx=canvas.getContext('2d');let w=0,h=0,stars=[],raf=0,speed=2;const count=800;
+    const resize=()=>{const dpr=Math.min(devicePixelRatio||1,2);w=canvas.clientWidth;h=canvas.clientHeight;canvas.width=w*dpr;canvas.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);stars=Array.from({length:count},()=>{const z=Math.random()*w+1;return{x:Math.random()*w-w/2,y:Math.random()*h-h/2,z,pz:z};});};
+    const draw=()=>{ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(0,0,w,h);for(const s of stars){s.z-=speed;if(s.z<1){s.x=Math.random()*w-w/2;s.y=Math.random()*h-h/2;s.z=w;s.pz=s.z;}const sx=s.x/s.z*w/2+w/2,sy=s.y/s.z*h/2+h/2,px=s.x/s.pz*w/2+w/2,py=s.y/s.pz*h/2+h/2;const r=Math.max(.1,(1-s.z/w)*2.5);s.pz=s.z;ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(sx,sy);ctx.lineWidth=r*2;ctx.strokeStyle=`rgba(255,255,255,${1-s.z/w})`;ctx.stroke();}raf=requestAnimationFrame(draw);};
+    const move=e=>{const dist=Math.abs(e.clientX-w/2);speed=2+(1-dist/(w/2))*20;};resize();draw();window.addEventListener('resize',()=>{cancelAnimationFrame(raf);resize();draw()},{passive:true});canvas.parentElement.addEventListener('pointermove',move,{passive:true});canvas.parentElement.addEventListener('pointerleave',()=>speed=2,{passive:true});
+  })();
+
+  // Звёздное поле первого экрана.
+  (() => {
+    const canvas = document.getElementById('starfield'); if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let width = 0, height = 0, stars = [], raf = 0;
+    const count = Math.min(260, Math.floor((window.innerWidth * window.innerHeight) / 6500));
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth; height = window.innerHeight;
+      canvas.width = width * dpr; canvas.height = height * dpr;
+      canvas.style.width = width + 'px'; canvas.style.height = height + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      stars = Array.from({length: count}, () => ({x:Math.random()*width,y:Math.random()*height,r:Math.random()*1.35+.2,a:Math.random()*.7+.2,s:Math.random()*.22+.04,p:Math.random()*Math.PI*2}));
+    };
+    const draw = (time=0) => {
+      ctx.clearRect(0,0,width,height);
+      for (const star of stars) {
+        const twinkle = reduceMotion ? 1 : .65 + Math.sin(time*.0007 + star.p)*.35;
+        ctx.beginPath(); ctx.arc(star.x,star.y,star.r,0,Math.PI*2);
+        ctx.fillStyle = `rgba(225,232,255,${star.a*twinkle})`; ctx.fill();
+        if (!reduceMotion) { star.y += star.s; if(star.y > height){star.y=0;star.x=Math.random()*width;} }
+      }
+      if (!reduceMotion) raf = requestAnimationFrame(draw);
+    };
+    resize(); draw();
+    window.addEventListener('resize', () => { cancelAnimationFrame(raf); resize(); draw(); }, {passive:true});
+  })();
+
+  // Шапка становится плотнее при прокрутке.
+  const topbar = document.getElementById('topbar');
+  const updateHeader = () => topbar && topbar.classList.toggle('scrolled', window.scrollY > 30);
+  window.addEventListener('scroll', updateHeader, {passive:true}); updateHeader();
+
+  // Мобильное меню.
+  const menuToggle = document.getElementById('menuToggle');
+  const navLinks = document.getElementById('navLinks');
+  menuToggle?.addEventListener('click', () => {
+    const opened = navLinks.classList.toggle('open');
+    menuToggle.setAttribute('aria-expanded', String(opened));
+    menuToggle.textContent = opened ? '×' : '☰';
+  });
+  navLinks?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+    navLinks.classList.remove('open'); menuToggle?.setAttribute('aria-expanded','false');
+    if(menuToggle) menuToggle.textContent = '☰';
+  }));
+
+  // Плавное появление блоков при входе в область просмотра.
+  const revealItems = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const observer = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => { if(entry.isIntersecting){entry.target.classList.add('visible');obs.unobserve(entry.target);} });
+    }, {threshold:.12,rootMargin:'0px 0px -35px 0px'});
+    revealItems.forEach(item => observer.observe(item));
+  } else revealItems.forEach(item => item.classList.add('visible'));
+</script>
 </body>
 </html>
