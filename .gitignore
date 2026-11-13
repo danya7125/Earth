@@ -218,3 +218,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Django Tailwind CLI
+.django_tailwind_cli/
