@@ -735,18 +735,41 @@ void main(){
   const updateHeader = () => topbar && topbar.classList.toggle('scrolled', window.scrollY > 30);
   window.addEventListener('scroll', updateHeader, {passive:true}); updateHeader();
 
-  // Мобильное меню.
+  // Мобильное меню (бургер).
   const menuToggle = document.getElementById('menuToggle');
   const navLinks = document.getElementById('navLinks');
-  menuToggle?.addEventListener('click', () => {
+
+  const closeMenu = () => {
+    if (!navLinks || !menuToggle) return;
+    navLinks.classList.remove('open');
+    menuToggle.setAttribute('aria-expanded', 'false');
+    menuToggle.setAttribute('aria-label', 'Открыть меню');
+    menuToggle.textContent = '☰';
+  };
+
+  menuToggle?.addEventListener('click', (e) => {
+    e.stopPropagation();
     const opened = navLinks.classList.toggle('open');
     menuToggle.setAttribute('aria-expanded', String(opened));
+    menuToggle.setAttribute('aria-label', opened ? 'Закрыть меню' : 'Открыть меню');
     menuToggle.textContent = opened ? '×' : '☰';
   });
-  navLinks?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
-    navLinks.classList.remove('open'); menuToggle?.setAttribute('aria-expanded','false');
-    if(menuToggle) menuToggle.textContent = '☰';
-  }));
+
+  navLinks?.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', closeMenu);
+  });
+
+  // Закрытие при клике вне меню
+  document.addEventListener('click', (e) => {
+    if (!navLinks?.classList.contains('open')) return;
+    if (menuToggle?.contains(e.target) || navLinks.contains(e.target)) return;
+    closeMenu();
+  });
+
+  // Закрытие по Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
 
   // Плавное появление блоков при входе в область просмотра.
   const revealItems = document.querySelectorAll('.reveal');
