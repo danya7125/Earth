@@ -1,36 +1,75 @@
 from django.db import models
 
 class Exoplanet(models.Model):
-    #Базовые идентификаторы
-    name = models.CharField(max_length=100, unique=True, verbose_name="Название планеты")
+    # Идентификатор
+    name = models.CharField(max_length=100, unique=True, db_index=True)
     
-    #Сырые данные звезды
-    sy_snum = models.IntegerField(null=True, blank=True, verbose_name="Количество звезд в системе")
-    st_spectype = models.CharField(max_length=50, null=True, blank=True, verbose_name="Спектральный класс")
-    st_teff = models.FloatField(null=True, blank=True, verbose_name="Температура звезды (K)")
-    st_mass = models.FloatField(null=True, blank=True, verbose_name="Масса звезды (M_sun)")
-    st_rad = models.FloatField(null=True, blank=True, verbose_name="Радиус звезды (R_sun)")
+    #ПАРАМЕТРЫ ЗВЕЗДЫ (С погрешностями err1 / err2)
+    st_mass = models.FloatField(null=True)
+    st_mass_err1 = models.FloatField(null=True)  # Верхняя погрешность массы
+    st_mass_err2 = models.FloatField(null=True)  # Нижняя погрешность массы
     
-    #Сырые данные планеты
-    pl_rade = models.FloatField(null=True, blank=True, verbose_name="Радиус (R_earth)")
-    pl_bmasse = models.FloatField(null=True, blank=True, verbose_name="Масса (M_earth)")
-    pl_orbsmax = models.FloatField(null=True, blank=True, verbose_name="Большая полуось (AU)")
-    pl_orbper = models.FloatField(null=True, blank=True, verbose_name="Период обращения (дни)")
-    pl_eqt = models.FloatField(null=True, blank=True, verbose_name="Равновесная температура (K)")
+    st_rad = models.FloatField(null=True)
+    st_rad_err1 = models.FloatField(null=True)
+    st_rad_err2 = models.FloatField(null=True)
     
-    # Расчетные поля
-    surface_temp = models.FloatField(null=True, blank=True, verbose_name="Расчетная темп. поверхности (K)")
+    st_teff = models.FloatField(null=True)
+    st_teff_err1 = models.FloatField(null=True)
+    st_teff_err2 = models.FloatField(null=True)
     
-    #Индексируем поля (db_index=True), по которым будем делать сортировку для ТОП-50
-    esi_score = models.FloatField(null=True, blank=True, db_index=True, verbose_name="Индекс ESI")
-    is_habitable = models.BooleanField(default=False, db_index=True, verbose_name="В зоне обитаемости")
+    st_lum = models.FloatField(null=True)
+    st_age = models.FloatField(null=True)
+    sy_jmag = models.FloatField(null=True)
+    sy_snum = models.IntegerField(null=True)
+    st_spectype = models.CharField(max_length=50, null=True)
     
-    #Метаданные для кэширования и проверки актуальности
-    updated_at = models.DateTimeField(auto_now=True)
+    #ПАРАМЕТРЫ ПЛАНЕТЫ (С погрешностями err1 / err2)
+    pl_rade = models.FloatField(null=True)
+    pl_rade_err1 = models.FloatField(null=True)
+    pl_rade_err2 = models.FloatField(null=True)
+    
+    pl_bmasse = models.FloatField(null=True)
+    pl_bmasse_err1 = models.FloatField(null=True)
+    pl_bmasse_err2 = models.FloatField(null=True)
+    
+    pl_orbsmax = models.FloatField(null=True)
+    pl_orbsmax_err1 = models.FloatField(null=True)
+    pl_orbsmax_err2 = models.FloatField(null=True)
+    
+    pl_orbper = models.FloatField(null=True)
+    pl_eqt = models.FloatField(null=True)
+    pl_orbeccen = models.FloatField(null=True)
+    tran_flag = models.IntegerField(null=True)
+    pl_bmassprov = models.CharField(max_length=50, null=True)
+    
+    #РАСЧЕТНЫЕ ФИЗИЧЕСКИЕ ПАРАМЕТРЫ
+    t_surf = models.FloatField(null=True)
+    v_esc = models.FloatField(null=True)
+    pl_dens = models.FloatField(null=True) # Относительная плотность
+    
+    # Границы зоны обитаемости (D1-D4 по Коппарапу)
+    hz_d1 = models.FloatField(null=True)
+    hz_d2 = models.FloatField(null=True)
+    hz_d3 = models.FloatField(null=True)
+    hz_d4 = models.FloatField(null=True)
+    
+    #ИНДЕКСЫ 
+    esi_score = models.FloatField(null=True, db_index=True)
+    tsm_score = models.FloatField(null=True)
+    
+    # SEPHI компоненты
+    sephi_l1 = models.FloatField(null=True)
+    sephi_l2 = models.FloatField(null=True)
+    sephi_l3 = models.FloatField(null=True)
+    sephi_l4 = models.FloatField(null=True)
+    sephi_total = models.FloatField(null=True, db_index=True)
+    
+    # ФЛАГИ И ГРЕЙДЫ 
+    data_grade = models.CharField(max_length=20, default="Gold") # Gold, Silver, Bronze
+    is_rocky = models.BooleanField(default=False)            # R < 1.6 R_earth
+    retains_atm = models.BooleanField(default=False)         # Береговая линия
+    fulton_gap = models.BooleanField(default=False)          # Разрыв Фултона (1.5 - 2.0 R_earth)
+    is_anomaly = models.BooleanField(default=False)          # Коричневые карлики, пульсары и т.д.
 
     class Meta:
-        db_table = "exoplanets_data"
-        ordering = ['-esi_score'] # База по умолчанию отдаст самых пригодных первыми
-
-    def __str__(self):
-        return self.name
+        ordering = ['-sephi_total', '-esi_score']
