@@ -24,3 +24,6 @@ def get_planets(request):
 
 def index(request):
     return render(request, 'index.html')
+
+def dashboard(request):
+    return render(request, 'dashboard.html')
