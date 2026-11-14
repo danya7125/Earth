@@ -84,7 +84,7 @@
     @keyframes hyperFade{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
     @media(max-width:650px){.earth-atmosphere{height:160px}.earth-section{min-height:560px}.earth-copy{width:calc(100% - 34px);justify-content:center}.earth-copy h2{text-align:center;font-size:clamp(38px,10vw,58px)}.earth-overlay{background:linear-gradient(0deg,rgba(242,247,241,.72),rgba(242,247,241,.08) 80%)}.hyperdrive{min-height:540px;height:70vh}.hyperdrive-content h2{font-size:clamp(52px,15vw,78px)}.hyperdrive-content p{font-size:14px}}
 
-    /* ===== Правки: шапка, блоки на всю ширину, окно входа ===== */
+    /*  Правки: шапка, блоки на всю ширину, окно входа */
     html{scroll-padding-top:96px}
     /* Шапка растянута на весь экран, эффект размытия сохранён; содержимое остаётся в «барьере» 1180px */
     .topbar{top:0;left:0;right:0;transform:none;width:100%;height:80px;padding:0;border:0;border-bottom:1px solid rgba(255,255,255,.12);border-radius:0}
@@ -131,7 +131,7 @@
     }
     @media(max-width:420px){.brand span{display:none}}
 
-    /* ===== Версия 3: общий фон-туманность, шапка без кнопок, живой подвал ===== */
+    /*  Версия 3: общий фон-туманность, шапка без кнопок, живой подвал */
     .site-shell{background:transparent}
     #nebula-bg{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none;background:#05070d}
     main{position:relative;z-index:1}
@@ -167,6 +167,11 @@
       .earth-footer{--atm:clamp(240px,34svh,340px);--land:clamp(560px,80svh,760px)}
       .earth-text h2{font-size:clamp(34px,10.5vw,58px)}
     }
+
+    /* Плавные стыки: без линий и резких границ между Hyperdrive и подвалом */
+    .hyperdrive{border:0;border-radius:0;-webkit-mask-image:linear-gradient(180deg,transparent 0,#000 16%,#000 78%,transparent 100%),linear-gradient(90deg,transparent 0,#000 8%,#000 92%,transparent 100%);-webkit-mask-composite:source-in;mask-image:linear-gradient(180deg,transparent 0,#000 16%,#000 78%,transparent 100%),linear-gradient(90deg,transparent 0,#000 8%,#000 92%,transparent 100%);mask-composite:intersect}
+    .launch-section{padding:0 0 10px}
+    .earth-footer{margin-top:-60px}
   </style>
 </head>
 <body>
@@ -174,9 +179,7 @@
   <canvas id="nebula-bg" aria-hidden="true"></canvas>
   <header class="topbar" id="topbar">
     <div class="topbar-inner">
-      <a class="brand" href="#home" aria-label="КАША ТИМ — на главную">
-        <img src="https://avatars.mds.yandex.net/i?id=e1041dac2fa63528e36df7617a8dc47c_l-5089089-images-thumbs&n=13" alt="Логотип"><span>КАША ТИМ</span>
-      </a>
+      <a class="brand" href="#home" aria-label="КАША ТИМ — на главную"><img src="https://avatars.mds.yandex.net/i?id=e1041dac2fa63528e36df7617a8dc47c_l-5089089-images-thumbs&n=13" alt="Логотип"><span>КАША ТИМ</span></a>
       <nav class="nav-links" id="navLinks" aria-label="Главная навигация"><a href="#about">О нас</a><a href="#project">О проекте</a></nav>
     </div>
   </header>
@@ -184,37 +187,45 @@
   <main>
     <section class="hero" id="home">
       <div class="hero-content">
-        <h1>За пределами<br><span class="gradient-text">нашей системы</span></h1>
-        <p>Тысячи миров. Миллионы возможностей. Отправляйся в путешествие по экзопланетам и узнай, насколько удивительной может быть Вселенная.</p>
+        <h1>За пределами<br><span class="gradient-text">нашей системы</span>
+        </h1><p>Тысячи миров. Миллионы возможностей. 
+          Отправляйся в путешествие по экзопланетам и узнай, 
+          насколько удивительной может быть Вселенная.
+        </p>
       </div>
-      </section>
+    </section>
 
     <section class="section top-planets-section" id="top-planets">
       <canvas id="galaxyfield" aria-hidden="true"></canvas>
       <div class="container section-inner intro-grid">
         <div class="reveal">
-          <h2 class="section-title">Топ-50 планет,<br><span class="gradient-text">похожих на Землю</span>
-          </h2>
+          <h2 class="section-title">Топ-50 планет,<br><span class="gradient-text">похожих на Землю</span></h2>
           <p class="section-copy">Где-то далеко от нас вращаются планеты, которые могут напоминать наш дом. 
-            Мы собираем интересные открытия и превращаем сложные астрономические данные в понятное путешествие.
+            Мы собираем интересные открытия и 
+            превращаем сложные астрономические данные в понятное путешествие.
           </p>
-            <div class="stat-strip">
-              <div class="stat"><strong>50</strong><span>Планет в подборке</span></div>
-              <div class="stat"><strong>∞</strong><span>Миров для открытия</span></div>
-              <div class="stat"><strong>1</strong><span>Общий дом</span></div>
+          <div class="stat-strip">
+            <div class="stat"><strong>50</strong><span>Планет в подборке</span>
+            </div>
+            <div class="stat"><strong>∞</strong><span>Миров для открытия</span>
+            </div>
+            <div class="stat"><strong>1</strong><span>Общий дом</span>
             </div>
           </div>
         </div>
-      </section>
+      </div>
+    </section>
 
-    <section class="section observatory" id="discovery">
+    <section class="section observatory" id="discovery"> 
       <div class="observatory-card reveal">
-        <img src="https://avatars.mds.yandex.net/i?id=14e2d413c556962612e2d0264a29e5dd_l-10680870-images-thumbs&n=13" alt="Астрономическая обсерватория под звёздным небом" loading="lazy">
-        <div class="container observatory-copy">
+        <img src="https://avatars.mds.yandex.net/i?id=14e2d413c556962612e2d0264a29e5dd_l-10680870-images-thumbs&n=13" 
+        alt="Астрономическая обсерватория под звёздным небом" loading="lazy">
+        <div class="container observatory-copy"> 
           <div class="observatory-text">
             <h2 class="section-title">Миллионы миров.<br><span class="gradient-text">И каждый уникален.</span></h2>
             <p class="section-copy">За пределами Солнечной системы существуют миллионы потенциальных миров. 
-              Учёные находят их по едва заметным изменениям света далёких звёзд — и каждое открытие приближает нас к пониманию Вселенной.
+              Учёные находят их по едва заметным изменениям света далёких звёзд — 
+              и каждое открытие приближает нас к пониманию Вселенной.
             </p>
           </div>
         </div>
@@ -226,12 +237,15 @@
         <div class="blackhole-art" aria-hidden="true"></div>
         <div class="blackhole-copy">
           <h2>КАША ТИМ</h2>
-          <p>Космос — просто для каждого человека. Мы хотим сделать исследование далёких миров доступным, наглядным и по-настоящему увлекательным.</p>
+          <p>Космос — просто для каждого человека. 
+            Мы хотим сделать исследование далёких миров доступным, 
+            наглядным и по-настоящему увлекательным.
+          </p>
         </div>
       </div>
     </section>
 
-    <!-- Portal Field: полноразмерный анимированный фон-->
+    <!-- Portal Field: полноразмерный анимированный фон, текст поверх него -->
     <section class="section project-section" id="project" aria-label="О проекте">
       <canvas id="portal-field" aria-hidden="true"></canvas>
       <div class="project-grid">
@@ -814,7 +828,7 @@ float fbm(vec2 p){
 vec2 cloudL(vec2 q, float sc, float sp, float seed, float cov, float t){
   vec2 p = q * sc + vec2(t * sp + seed, seed * 0.7);
   float w = fbm(p * vec2(1.0, 1.8) + vec2(0.0, t * 0.01)) + 0.18 * fbm(p * 2.7 + 3.0);
-  float d = smoothstep(1.0 - cov, 1.0 - cov + 0.26, w);
+  float d = smoothstep(1.0 - cov, 1.0 - cov + 0.42, w);
   float lt = fbm(p * vec2(1.0, 1.8) + vec2(t * sp * 0.5, 0.45));
   return vec2(d, lt);
 }
@@ -830,8 +844,8 @@ void main(){
   vec3 hi = vec3(0.30, 0.52, 0.90), mid = vec3(0.70, 0.83, 0.96);
   vec3 sky = mix(hi, mid, smoothstep(0.0, 0.5, a));
   sky = mix(sky, cream, smoothstep(0.45, 0.98, a));
-  float skyA = pow(smoothstep(0.0, 0.62, a), 1.3);
-  float limb = exp(-pow((a - 0.12) / 0.10, 2.0));
+  float skyA = pow(smoothstep(0.0, 0.7, a), 1.7);
+  float limb = exp(-pow((a - 0.16) / 0.12, 2.0)) * smoothstep(0.0, 0.14, a);
   vec3 col = sky * skyA + vec3(0.55, 0.75, 1.0) * limb * 0.38;
   float A = clamp(skyA + limb * 0.38 * (1.0 - skyA), 0.0, 1.0);
 
