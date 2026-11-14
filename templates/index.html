@@ -83,15 +83,91 @@
     .hyperdrive-button span{font-size:22px;line-height:1}
     @keyframes hyperFade{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
     @media(max-width:650px){.earth-atmosphere{height:160px}.earth-section{min-height:560px}.earth-copy{width:calc(100% - 34px);justify-content:center}.earth-copy h2{text-align:center;font-size:clamp(38px,10vw,58px)}.earth-overlay{background:linear-gradient(0deg,rgba(242,247,241,.72),rgba(242,247,241,.08) 80%)}.hyperdrive{min-height:540px;height:70vh}.hyperdrive-content h2{font-size:clamp(52px,15vw,78px)}.hyperdrive-content p{font-size:14px}}
+
+    /* ===== Правки: шапка, блоки на всю ширину, окно входа ===== */
+    html{scroll-padding-top:96px}
+    /* Шапка растянута на весь экран, эффект размытия сохранён; содержимое остаётся в «барьере» 1180px */
+    .topbar{top:0;left:0;right:0;transform:none;width:100%;height:80px;padding:0;border:0;border-bottom:1px solid rgba(255,255,255,.12);border-radius:0}
+    .topbar.scrolled{border-color:rgba(255,255,255,.17)}
+    .topbar-inner{position:relative;width:min(1180px,calc(100% - 48px));height:100%;margin-inline:auto;display:flex;align-items:center;justify-content:space-between}
+    .nav-btn{background:transparent;color:inherit;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-family:inherit}
+    .nav-btn.primary{background:#f3f4fa;color:#080a11}
+    .nav-btn.primary:hover{background:#dcd7ff}
+    .nav-actions .nav-btn:first-child{display:inline-flex}
+    .hero-content{padding-top:80px}
+
+    /* Топ-50: галактика растянута на весь блок */
+    .top-planets-section{min-height:720px;display:flex;align-items:center}
+    .top-planets-section:before{background:linear-gradient(90deg,rgba(5,7,13,.72),rgba(5,7,13,.34) 58%,rgba(5,7,13,.12)),radial-gradient(ellipse at 50% 50%,transparent 0%,rgba(5,7,13,.1) 70%,rgba(5,7,13,.5) 100%)}
+    #galaxyfield{opacity:1}
+
+    /* Обсерватория: фон на всю ширину экрана, текст внутри контейнера */
+    .observatory{padding:0;overflow:visible}
+    .observatory:before{display:none}
+    .observatory-card{width:100%;min-height:700px;display:flex;align-items:center;border-radius:0;border-left:0;border-right:0}
+    .observatory-card img{opacity:.82;object-position:center 62%}
+    .observatory-card:after{background:linear-gradient(90deg,#05070dee 0%,#05070d99 42%,transparent 85%),linear-gradient(180deg,#05070d 0%,transparent 16%,transparent 80%,#05070d 100%)}
+    .observatory-copy{position:relative;z-index:2;display:block;min-height:0;max-width:none;padding:100px 0}
+    .observatory-text{max-width:640px}
+
+    /* Чёрная дыра: на всю ширину, свечение растянуто по блоку */
+    @property --hole-angle{syntax:'<angle>';inherits:false;initial-value:20deg}
+    .blackhole-section{padding:0}
+    .blackhole-section:before{display:none}
+    .blackhole-wrap{width:100%;min-height:720px;border-radius:0;border-left:0;border-right:0}
+    .blackhole-art{left:50%;top:50%;width:min(1600px,125%);height:145%;aspect-ratio:auto;transform:translate(-50%,-50%);background:radial-gradient(ellipse at center,#000 0 23%,transparent 24%),conic-gradient(from var(--hole-angle) at 50% 50%,transparent,#ffb46b66,#fff1d0aa,#b16dff44,transparent 65%);animation:holeAngle 24s linear infinite}
+    @keyframes holeAngle{to{--hole-angle:380deg}}
+
+    /* Окно входа / регистрации */
+    body.auth-open{overflow:hidden}
+    .auth{position:fixed;inset:0;z-index:100;display:grid;place-items:center;padding:20px;visibility:hidden;opacity:0;transition:opacity .3s ease,visibility 0s linear .3s}
+    .auth.open{visibility:visible;opacity:1;transition:opacity .3s ease}
+    .auth-backdrop{position:absolute;inset:0;background:rgba(3,5,11,.5);backdrop-filter:blur(18px) saturate(1.1);-webkit-backdrop-filter:blur(18px) saturate(1.1)}
+    .auth-card{position:relative;width:min(430px,100%);padding:36px 30px 26px;text-align:center;border:1px solid rgba(255,255,255,.14);border-radius:26px;background:linear-gradient(160deg,rgba(26,23,50,.94),rgba(9,11,20,.96));box-shadow:0 40px 120px #000a,inset 0 1px 0 #ffffff12;transform:translateY(20px) scale(.97);transition:transform .38s cubic-bezier(.2,.7,.2,1)}
+    .auth.open .auth-card{transform:none}
+    .auth-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:#ffffff0a;color:#d6d9e6;font-size:22px;line-height:1;cursor:pointer;transition:background .2s}
+    .auth-close:hover{background:#ffffff1c}
+    .auth-logo{width:52px;height:52px;border-radius:50%;object-fit:cover;box-shadow:0 0 40px #9b8cff55}
+    .auth-card h2{margin:18px 0 8px;font-size:30px;letter-spacing:-.05em;font-weight:700}
+    .auth-text{margin:0 auto 24px;max-width:320px;color:var(--muted);font-size:14px;line-height:1.7}
+    .auth-providers{display:grid;gap:10px}
+    .auth-provider{display:flex;align-items:center;gap:14px;width:100%;padding:12px 16px;border:1px solid rgba(255,255,255,.14);border-radius:15px;background:#ffffff08;color:#f5f7ff;font-size:14px;font-weight:600;cursor:pointer;text-align:left;transition:background .2s,transform .2s,border-color .2s}
+    .auth-provider:hover{background:#ffffff14;border-color:#ffffff30;transform:translateY(-2px)}
+    .auth-label{flex:1}
+    .auth-arrow{color:#9ba3b8;transition:transform .2s}
+    .auth-provider:hover .auth-arrow{transform:translateX(4px)}
+    .auth-ico{display:grid;place-items:center;flex:none;width:34px;height:34px;border-radius:10px;color:#fff;font-weight:800}
+    .ico-ya{background:#fc3f1d;font-size:17px}
+    .ico-vk{background:#0077ff;font-size:12px;letter-spacing:.02em}
+    .ico-max{background:linear-gradient(135deg,#3fc6ff,#6a4dff 55%,#b14dff);font-size:9px;letter-spacing:.04em}
+    .auth-note{min-height:18px;margin:16px 0 0;color:#c4baff;font-size:12px}
+    .auth-switch{margin:8px 0 0;color:#929bad;font-size:13px}
+    .auth-switch button{border:0;background:none;padding:0;color:#d8d2ff;font:inherit;font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+    @media(max-width:650px){
+      .topbar{top:0;width:100%;height:64px;padding:0;border-radius:0}
+      .topbar-inner{width:calc(100% - 28px)}
+      .nav-links{top:calc(100% + 8px)}
+      .top-planets-section{min-height:640px}
+      .observatory-card{min-height:640px;align-items:flex-end}
+      .observatory-card:after{background:linear-gradient(0deg,#05070df2 0%,#05070d99 55%,transparent 100%),linear-gradient(180deg,#05070d,transparent 15%)}
+      .observatory-copy{padding:60px 0 44px}
+      .blackhole-wrap{min-height:580px}
+      .blackhole-art{width:190%;height:115%}
+      .auth-card{padding:32px 22px 22px}
+    }
+    @media(max-width:420px){.brand span{display:none}}
   </style>
 </head>
 <body>
 <div class="site-shell">
   <header class="topbar" id="topbar">
-    <a class="brand" href="#home" aria-label="КАША ТИМ — на главную"><img src="https://avatars.mds.yandex.net/i?id=e1041dac2fa63528e36df7617a8dc47c_l-5089089-images-thumbs&n=13" alt="Логотип"><span>КАША ТИМ</span></a>
-    <nav class="nav-links" id="navLinks" aria-label="Главная навигация"><a href="#about">О нас</a><a href="#project">О проекте</a></nav>
-    <div class="nav-actions"><a class="nav-btn" href="#contacts">Войти</a><a class="nav-btn primary" href="#launch">Начать</a></div>
-    <button class="menu-toggle" id="menuToggle" aria-label="Открыть меню" aria-expanded="false">☰</button>
+    <div class="topbar-inner">
+      <a class="brand" href="#home" aria-label="КАША ТИМ — на главную"><img src="https://avatars.mds.yandex.net/i?id=e1041dac2fa63528e36df7617a8dc47c_l-5089089-images-thumbs&n=13" alt="Логотип"><span>КАША ТИМ</span></a>
+      <nav class="nav-links" id="navLinks" aria-label="Главная навигация"><a href="#about">О нас</a><a href="#project">О проекте</a></nav>
+      <div class="nav-actions"><button class="nav-btn" type="button" data-auth="login">Войти</button><button class="nav-btn primary" type="button" data-auth="register">Регистрация</button></div>
+      <button class="menu-toggle" id="menuToggle" aria-label="Открыть меню" aria-expanded="false">☰</button>
+    </div>
   </header>
 
   <main>
@@ -99,9 +175,9 @@
 
     <section class="section top-planets-section" id="top-planets"><canvas id="galaxyfield" aria-hidden="true"></canvas><div class="container section-inner intro-grid"><div class="reveal"><h2 class="section-title">Топ-50 планет,<br><span class="gradient-text">похожих на Землю</span></h2><p class="section-copy">Где-то далеко от нас вращаются планеты, которые могут напоминать наш дом. Мы собираем интересные открытия и превращаем сложные астрономические данные в понятное путешествие.</p><div class="stat-strip"><div class="stat"><strong>50</strong><span>Планет в подборке</span></div><div class="stat"><strong>∞</strong><span>Миров для открытия</span></div><div class="stat"><strong>1</strong><span>Общий дом</span></div></div></div></div></section>
 
-    <section class="section observatory" id="discovery"><div class="container section-inner"><div class="observatory-card reveal"><img src="https://avatars.mds.yandex.net/i?id=14e2d413c556962612e2d0264a29e5dd_l-10680870-images-thumbs&n=13" alt="Астрономическая обсерватория под звёздным небом" loading="lazy"><div class="observatory-copy"><h2 class="section-title">Миллионы миров.<br><span class="gradient-text">И каждый уникален.</span></h2><p class="section-copy">За пределами Солнечной системы существуют миллионы потенциальных миров. Учёные находят их по едва заметным изменениям света далёких звёзд — и каждое открытие приближает нас к пониманию Вселенной.</p></div></div></div></section>
+    <section class="section observatory" id="discovery"><div class="observatory-card reveal"><img src="https://avatars.mds.yandex.net/i?id=14e2d413c556962612e2d0264a29e5dd_l-10680870-images-thumbs&n=13" alt="Астрономическая обсерватория под звёздным небом" loading="lazy"><div class="container observatory-copy"><div class="observatory-text"><h2 class="section-title">Миллионы миров.<br><span class="gradient-text">И каждый уникален.</span></h2><p class="section-copy">За пределами Солнечной системы существуют миллионы потенциальных миров. Учёные находят их по едва заметным изменениям света далёких звёзд — и каждое открытие приближает нас к пониманию Вселенной.</p></div></div></div></section>
 
-    <section class="section blackhole-section" id="about"><div class="container section-inner"><div class="blackhole-wrap reveal"><div class="blackhole-art" aria-hidden="true"></div><div class="blackhole-copy"><h2>КАША ТИМ<br></h2><p>Космос — просто для каждого человека. Мы хотим сделать исследование далёких миров доступным, наглядным и по-настоящему увлекательным.</p></div></div></div></section>
+    <section class="section blackhole-section" id="about"><div class="blackhole-wrap reveal"><div class="blackhole-art" aria-hidden="true"></div><div class="blackhole-copy"><h2>КАША ТИМ</h2><p>Космос — просто для каждого человека. Мы хотим сделать исследование далёких миров доступным, наглядным и по-настоящему увлекательным.</p></div></div></section>
 
     <!-- Portal Field: полноразмерный анимированный фон, текст поверх него -->
     <section class="section project-section" id="project" aria-label="О проекте">
@@ -119,6 +195,24 @@
     <div class="earth-atmosphere" aria-hidden="true"><div class="atmosphere-glow"></div><div class="cloud cloud-one"></div><div class="cloud cloud-two"></div><div class="cloud cloud-three"></div></div>
     <section class="earth-section" id="contacts" aria-label="Наш общий дом"><img src="{% static 'image/earth.png' %}" alt="Зелёные долины и небольшой дом среди природы" loading="lazy"><div class="earth-overlay"></div><div class="container earth-copy reveal"><h2>А это наш маленький<br>мир на фоне космоса.</h2></div></section>
   </main>
+</div>
+
+<!-- Вход / регистрация: фон размывается, поверх — окно выбора способа -->
+<div class="auth" id="auth" aria-hidden="true">
+  <div class="auth-backdrop" data-auth-close></div>
+  <div class="auth-card" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <button class="auth-close" type="button" data-auth-close aria-label="Закрыть">×</button>
+    <img class="auth-logo" src="https://avatars.mds.yandex.net/i?id=e1041dac2fa63528e36df7617a8dc47c_l-5089089-images-thumbs&n=13" alt="">
+    <h2 id="authTitle">Вход</h2>
+    <p class="auth-text" id="authText">Выбери удобный способ, чтобы войти в аккаунт.</p>
+    <div class="auth-providers">
+      <button class="auth-provider" type="button" data-provider="yandex" data-name="Яндекс"><span class="auth-ico ico-ya">Я</span><span class="auth-label"></span><span class="auth-arrow">→</span></button>
+      <button class="auth-provider" type="button" data-provider="vk" data-name="VK"><span class="auth-ico ico-vk">VK</span><span class="auth-label"></span><span class="auth-arrow">→</span></button>
+      <button class="auth-provider" type="button" data-provider="max" data-name="MAX"><span class="auth-ico ico-max">MAX</span><span class="auth-label"></span><span class="auth-arrow">→</span></button>
+    </div>
+    <p class="auth-note" id="authNote" role="status" aria-live="polite"></p>
+    <p class="auth-switch"><span id="authSwitchText">Нет аккаунта?</span> <button type="button" id="authSwitch">Зарегистрироваться</button></p>
+  </div>
 </div>
 
 <script>
@@ -295,73 +389,74 @@
     window.addEventListener('pagehide', destroy, { once: true });
   })();
 
-  // Галактика из частиц: та же анимация используется в карточке и фоном первого экрана.
+  // Галактика из частиц: растянута на весь блок секции «Топ-50 планет».
   (() => {
-    const canvases = [
-      document.getElementById('galaxyfield')
-    ].filter(Boolean);
-    if (!canvases.length) return;
+    const canvas = document.getElementById('galaxyfield'); if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let w = 0, h = 0, particles = [], raf = 0, visible = true;
 
-    canvases.forEach(canvas => {
-      const ctx = canvas.getContext('2d');
-      let w = 0, h = 0, particles = [], raf = 0;
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = canvas.clientWidth; h = canvas.clientHeight;
+      if (!w || !h) return;
+      canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const count = Math.min(4200, Math.max(900, Math.floor(w * h / 380)));
+      particles = Array.from({ length: count }, () => ({
+        a: Math.random() * Math.PI * 2,
+        rn: Math.pow(Math.random(), .78),          // 0..1 — доля радиуса эллипса, а не пиксели
+        sz: Math.random() * 1.35 + .25,
+        alpha: Math.random() * .75 + .18,
+        arm: Math.random() < .5 ? -1 : 1,
+        phase: Math.random() * 6.28
+      }));
+    };
 
-      const resize = () => {
-        const dpr = Math.min(devicePixelRatio || 1, 2);
-        w = canvas.clientWidth;
-        h = canvas.clientHeight;
-        canvas.width = w * dpr;
-        canvas.height = h * dpr;
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const draw = t => {
+      if (!w || !h) return;
+      ctx.clearRect(0, 0, w, h);
+      const cx = w / 2, cy = h / 2;
+      const rx = w * .6, ry = h * .62;              // эллипс шире самого блока → заполняет его целиком
 
-        const count = Math.min(1800, Math.max(650, Math.floor(w * h / 230)));
-        particles = Array.from({ length: count }, () => {
-          const a = Math.random() * Math.PI * 2;
-          const radius = Math.pow(Math.random(), .62) * Math.min(w, h) * .43;
-          return {
-            a,
-            r: radius,
-            sz: Math.random() * 1.25 + .2,
-            alpha: Math.random() * .75 + .18,
-            arm: Math.random() < .5 ? -1 : 1,
-            phase: Math.random() * 6.28
-          };
-        });
-      };
+      // мягкое свечение ядра, тоже растянутое по блоку
+      ctx.save();
+      ctx.translate(cx, cy); ctx.scale(rx, ry);
+      const glow = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
+      glow.addColorStop(0, 'rgba(224,235,255,.9)');
+      glow.addColorStop(.035, 'rgba(170,195,255,.42)');
+      glow.addColorStop(.14, 'rgba(100,135,230,.16)');
+      glow.addColorStop(.5, 'rgba(60,95,180,.07)');
+      glow.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(-1, -1, 2, 2);
+      ctx.restore();
 
-      const draw = t => {
-        ctx.clearRect(0, 0, w, h);
-        const cx = w / 2, cy = h / 2;
-        const radius = Math.min(w, h) * .47;
-        const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-        glow.addColorStop(0, 'rgba(224,235,255,.95)');
-        glow.addColorStop(.12, 'rgba(145,174,255,.32)');
-        glow.addColorStop(.42, 'rgba(65,104,190,.12)');
-        glow.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = glow;
-        ctx.fillRect(0, 0, w, h);
+      for (const p of particles) {
+        const twist = p.a + p.arm * p.rn * .9 + (t * .000018 * p.arm);
+        const x = cx + Math.cos(twist) * p.rn * rx;
+        const y = cy + Math.sin(twist) * p.rn * ry;
+        const twinkle = reduce ? 1 : .55 + .45 * Math.sin(t * .001 + p.phase);
+        const edge = 1 - p.rn * p.rn * .55;
+        ctx.beginPath();
+        ctx.arc(x, y, p.sz, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(220,232,255,${p.alpha * twinkle * edge})`;
+        ctx.fill();
+      }
+    };
 
-        for (const particle of particles) {
-          const twist = particle.a + particle.arm * particle.r * .002 + (t * .000018 * particle.arm);
-          const x = cx + Math.cos(twist) * particle.r;
-          const y = cy + Math.sin(twist) * particle.r * .43;
-          const twinkle = .55 + .45 * Math.sin(t * .001 + particle.phase);
-          ctx.beginPath();
-          ctx.arc(x, y, particle.sz, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(220,232,255,${particle.alpha * twinkle})`;
-          ctx.fill();
-        }
-        raf = requestAnimationFrame(draw);
-      };
+    const loop = t => {
+      draw(t);
+      raf = (!reduce && visible) ? requestAnimationFrame(loop) : 0;
+    };
+    const start = () => { if (!raf) raf = requestAnimationFrame(loop); };
 
-      resize();
-      draw(0);
-      window.addEventListener('resize', () => {
-        cancelAnimationFrame(raf);
-        resize();
-        draw(0);
-      }, { passive: true });
-    });
+    resize(); draw(0); if (!reduce) start();
+    if ('ResizeObserver' in window) new ResizeObserver(() => { resize(); draw(0); }).observe(canvas);
+    else window.addEventListener('resize', () => { resize(); draw(0); }, { passive: true });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(es => { visible = es.some(e => e.isIntersecting); if (visible && !reduce) start(); }).observe(canvas);
+    }
   })();
 
   // Hyperdrive: звёзды летят к зрителю, скорость реагирует на положение мыши.
@@ -399,6 +494,56 @@
     };
     resize(); draw();
     window.addEventListener('resize', () => { cancelAnimationFrame(raf); resize(); draw(); }, {passive:true});
+  })();
+
+  // Вход / регистрация: меню способов поверх размытого фона.
+  (() => {
+    // Сюда подставь адреса OAuth-входа (например '/auth/yandex/'). Пока пусто — покажется заглушка.
+    const AUTH_URLS = { yandex: '', vk: '', max: '' };
+
+    const modal = document.getElementById('auth'); if (!modal) return;
+    const title = document.getElementById('authTitle');
+    const text = document.getElementById('authText');
+    const note = document.getElementById('authNote');
+    const swText = document.getElementById('authSwitchText');
+    const swBtn = document.getElementById('authSwitch');
+    const closeBtn = modal.querySelector('.auth-close');
+    const MODES = {
+      login:    { title: 'Вход', text: 'Выбери удобный способ, чтобы войти в аккаунт.', verb: 'Войти через', swText: 'Нет аккаунта?', swBtn: 'Зарегистрироваться', other: 'register' },
+      register: { title: 'Регистрация', text: 'Создай аккаунт за пару секунд — выбери, через что продолжить.', verb: 'Продолжить через', swText: 'Уже есть аккаунт?', swBtn: 'Войти', other: 'login' }
+    };
+    let mode = 'login', lastFocus = null;
+
+    const setMode = m => {
+      mode = m; const c = MODES[m];
+      title.textContent = c.title; text.textContent = c.text;
+      swText.textContent = c.swText; swBtn.textContent = c.swBtn; note.textContent = '';
+      modal.querySelectorAll('.auth-provider').forEach(b => {
+        b.querySelector('.auth-label').textContent = c.verb + ' ' + b.dataset.name;
+      });
+    };
+    const open = m => {
+      lastFocus = document.activeElement; setMode(m);
+      modal.classList.add('open'); modal.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('auth-open');
+      navLinksEl?.classList.remove('open');
+      setTimeout(() => modal.querySelector('.auth-provider')?.focus(), 60);
+    };
+    const close = () => {
+      modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('auth-open'); lastFocus?.focus?.();
+    };
+    const navLinksEl = document.getElementById('navLinks');
+
+    document.querySelectorAll('[data-auth]').forEach(b => b.addEventListener('click', () => open(b.dataset.auth)));
+    modal.querySelectorAll('[data-auth-close]').forEach(b => b.addEventListener('click', close));
+    swBtn.addEventListener('click', () => setMode(MODES[mode].other));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.classList.contains('open')) close(); });
+    modal.querySelectorAll('.auth-provider').forEach(b => b.addEventListener('click', () => {
+      const url = AUTH_URLS[b.dataset.provider];
+      if (url) location.href = url + (url.includes('?') ? '&' : '?') + 'mode=' + mode;
+      else note.textContent = 'Вход через ' + b.dataset.name + ' скоро будет доступен.';
+    }));
   })();
 
   // Шапка становится плотнее при прокрутке.
