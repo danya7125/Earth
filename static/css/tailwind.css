@@ -8,7 +8,6 @@
     --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
     monospace;
     --color-black: #000;
-    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --default-transition-duration: 150ms;
     --default-transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     --default-font-family: var(--font-sans);
@@ -260,6 +259,148 @@
       grid-row-start: 1;
     }
   }
+  @layer daisyui.l1.l2.l3 {
+    .drawer {
+      position: relative;
+      display: grid;
+      width: 100%;
+      grid-auto-columns: max-content auto;
+    }
+    .card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      border-radius: var(--radius-box);
+      transition: outline 0.2s ease-in-out;
+      outline: 2px solid #0000;
+      outline-offset: 2px;
+    }
+    .card:focus-visible {
+      outline-color: currentColor;
+    }
+    .card[aria-checked="true"] {
+      outline-color: currentColor;
+    }
+    .card:has( > :checked,  > :is([type="checkbox"], [type="radio"]):focus-visible) {
+      outline-color: currentColor;
+    }
+    .card:has( > :checked:focus-visible) {
+      outline-width: 4px;
+    }
+    .card[aria-checked="true"]:focus-visible {
+      outline-width: 4px;
+    }
+    .card[aria-checked="true"]:has( > :is([type="checkbox"], [type="radio"]):focus-visible) {
+      outline-width: 4px;
+    }
+    .card:has( > :is([type="checkbox"], [type="radio"])) {
+      cursor: pointer;
+      user-select: none;
+    }
+    .card > :is([type="checkbox"], [type="radio"]) {
+      appearance: none;
+    }
+  }
+  @layer daisyui.l1.l2.l3.l4 {
+    .card figure:first-child {
+      overflow: hidden;
+      border-start-start-radius: inherit;
+      border-start-end-radius: inherit;
+      border-end-start-radius: unset;
+      border-end-end-radius: unset;
+    }
+    .card figure:last-child {
+      overflow: hidden;
+      border-start-start-radius: unset;
+      border-start-end-radius: unset;
+      border-end-start-radius: inherit;
+      border-end-end-radius: inherit;
+    }
+    .card figure {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  @layer daisyui.l1.l2.l3 {
+    .progress {
+      position: relative;
+      height: calc(0.25rem * 2);
+      width: 100%;
+      appearance: none;
+      overflow: hidden;
+      border-radius: var(--radius-box);
+      background-color: currentcolor;
+    }
+    @supports (color: color-mix(in lab, red, red)) {
+      .progress {
+        background-color: color-mix(in oklab, currentcolor 20%, transparent);
+      }
+    }
+    .progress {
+      color: var(--color-base-content);
+    }
+    @media (forced-colors: active) {
+      .progress {
+        border: 1px solid;
+      }
+    }
+    .progress:indeterminate {
+      background-image: repeating-linear-gradient( 90deg, currentColor -1%, currentColor 10%, #0000 10%, #0000 90% );
+      background-size: 200%;
+      background-position-x: 15%;
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      .progress:indeterminate {
+        animation: progress 5s ease-in-out infinite;
+      }
+    }
+    @supports (-moz-appearance: none) {
+      .progress:indeterminate::-moz-progress-bar {
+        background-color: transparent;
+        @media (prefers-reduced-motion: no-preference) {
+          animation: progress 5s ease-in-out infinite;
+          background-image: repeating-linear-gradient( 90deg, currentColor -1%, currentColor 10%, #0000 10%, #0000 90% );
+          background-size: 200%;
+          background-position-x: 15%;
+        }
+      }
+      .progress::-moz-progress-bar {
+        border-radius: var(--radius-box);
+        background-color: currentcolor;
+      }
+      @media (forced-colors: active) {
+        .progress::-moz-progress-bar {
+          background-color: CanvasText;
+        }
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .progress::-moz-progress-bar {
+          transition: inline-size 0.3s ease;
+        }
+      }
+    }
+    @supports (-webkit-appearance: none) {
+      .progress::-webkit-progress-bar {
+        border-radius: var(--radius-box);
+        background-color: transparent;
+      }
+      .progress::-webkit-progress-value {
+        border-radius: var(--radius-box);
+        background-color: currentColor;
+      }
+      @media (forced-colors: active) {
+        .progress::-webkit-progress-value {
+          background-color: CanvasText;
+        }
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .progress::-webkit-progress-value {
+          transition: inline-size 0.3s ease;
+        }
+      }
+    }
+  }
   .static {
     position: static;
   }
@@ -404,22 +545,31 @@
   .resize {
     resize: both;
   }
-  .border {
-    border-style: var(--tw-border-style);
-    border-width: 1px;
+  .glass {
+    border: none;
+    backdrop-filter: blur(var(--glass-blur, 40px));
+    background-color: #0000;
+    background-image: linear-gradient( 135deg, oklch(100% 0 0 / var(--glass-opacity, 30%)) 0%, oklch(0% 0 0 / 0%) 100% ), linear-gradient( var(--glass-reflect-degree, 100deg), oklch(100% 0 0 / var(--glass-reflect-opacity, 5%)) 25%, oklch(0% 0 0 / 0%) 25% );
+    box-shadow: 0 0 0 1px oklch(100% 0 0 / var(--glass-border-opacity, 20%)) inset, 0 0 0 2px oklch(0% 0 0 / 5%);
+    text-shadow: 0 1px oklch(0% 0 0 / var(--glass-text-shadow-opacity, 5%));
+  }
+  .shadow {
+    --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
+    box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
   .ring {
     --tw-ring-shadow: var(--tw-ring-inset, ) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
     box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   }
-  .backdrop-filter {
-    -webkit-backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
-    backdrop-filter: var(--tw-backdrop-blur, ) var(--tw-backdrop-brightness, ) var(--tw-backdrop-contrast, ) var(--tw-backdrop-grayscale, ) var(--tw-backdrop-hue-rotate, ) var(--tw-backdrop-invert, ) var(--tw-backdrop-opacity, ) var(--tw-backdrop-saturate, ) var(--tw-backdrop-sepia, );
-  }
   .transition {
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, --tw-gradient-from, --tw-gradient-via, --tw-gradient-to, opacity, box-shadow, transform, translate, scale, rotate, filter, -webkit-backdrop-filter, backdrop-filter, display, content-visibility, overlay, pointer-events;
     transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
     transition-duration: var(--tw-duration, var(--default-transition-duration));
+  }
+  @layer daisyui.l1.l2.l3 {
+    .aura:has( > .card,  > .alert) {
+      --aura-radius: var(--radius-box);
+    }
   }
 }
 @layer base {
@@ -706,11 +856,6 @@
   syntax: "*";
   inherits: false;
 }
-@property --tw-border-style {
-  syntax: "*";
-  inherits: false;
-  initial-value: solid;
-}
 @property --tw-shadow {
   syntax: "*";
   inherits: false;
@@ -776,42 +921,6 @@
   inherits: false;
   initial-value: 0 0 #0000;
 }
-@property --tw-backdrop-blur {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-brightness {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-contrast {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-grayscale {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-hue-rotate {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-invert {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-opacity {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-saturate {
-  syntax: "*";
-  inherits: false;
-}
-@property --tw-backdrop-sepia {
-  syntax: "*";
-  inherits: false;
-}
 @layer properties {
   @supports ((-webkit-hyphens: none) and (not (margin-trim: block))) or ((-moz-orient: inline) and (not (color:rgb(from red r g b)))) {
     *, ::before, ::after, ::backdrop {
@@ -820,7 +929,6 @@
       --tw-rotate-z: initial;
       --tw-skew-x: initial;
       --tw-skew-y: initial;
-      --tw-border-style: solid;
       --tw-shadow: 0 0 #0000;
       --tw-shadow-color: initial;
       --tw-shadow-alpha: 100%;
@@ -835,15 +943,6 @@
       --tw-ring-offset-width: 0px;
       --tw-ring-offset-color: #fff;
       --tw-ring-offset-shadow: 0 0 #0000;
-      --tw-backdrop-blur: initial;
-      --tw-backdrop-brightness: initial;
-      --tw-backdrop-contrast: initial;
-      --tw-backdrop-grayscale: initial;
-      --tw-backdrop-hue-rotate: initial;
-      --tw-backdrop-invert: initial;
-      --tw-backdrop-opacity: initial;
-      --tw-backdrop-saturate: initial;
-      --tw-backdrop-sepia: initial;
     }
   }
 }

@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#030014" />
+  <title>404 — Страница не найдена</title>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#030014; --text:#f5f7ff; --muted:#a5adbf; --line:rgba(255,255,255,.13); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    html, body {
+      width:100%; height:100%;
+      background:#000000; color:var(--text);
+      font-family:Manrope,system-ui,sans-serif;
+      overflow:hidden; -webkit-font-smoothing:antialiased;
+    }
+    a { color:inherit; text-decoration:none; }
+    button { font:inherit; }
+
+    .topbar {
+      position:fixed; z-index:50; top:0; left:0; right:0;
+      width:100%; height:80px; padding:0;
+      border:0; border-bottom:1px solid rgba(255,255,255,.12);
+      background:rgba(10,13,22,.42);
+      backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+      transition:background .35s, border-color .35s, box-shadow .35s;
+    }
+    .topbar.scrolled {
+      background:rgba(8,10,17,.82);
+      border-color:rgba(255,255,255,.17);
+      box-shadow:0 12px 45px #0005;
+    }
+    .topbar-inner {
+      position:relative;
+      width:min(1180px,calc(100% - 48px));
+      height:100%; margin-inline:auto;
+      display:flex; align-items:center; justify-content:space-between;
+    }
+    .brand {
+      display:flex; align-items:center; gap:11px;
+      font-weight:800; letter-spacing:.08em; font-size:14px; white-space:nowrap;
+    }
+    .brand img { width:31px; height:31px; border-radius:50%; object-fit:cover; }
+    .nav-links { display:flex; align-items:center; gap:30px; font-size:14px; color:#dfe2ee; }
+    .nav-links a { position:relative; padding:6px 0; transition:color .2s; }
+    .nav-links a:after {
+      content:""; position:absolute; left:0; right:0; bottom:0; height:1px;
+      background:linear-gradient(90deg,#9b8cff,#80d8ff);
+      transform:scaleX(0); transform-origin:left; transition:transform .3s;
+    }
+    .nav-links a:hover { color:#fff; }
+    .nav-links a:hover:after { transform:scaleX(1); }
+    .menu-toggle {
+      display:none!important;
+      border:1px solid var(--line); background:#ffffff0c; color:white;
+      border-radius:12px; width:42px; height:42px; font-size:20px;
+    }
+    @media (max-width:900px) { .nav-links { gap:17px; } }
+    @media (max-width:650px) {
+      .topbar { height:64px; }
+      .topbar-inner { width:calc(100% - 28px); }
+      .brand { font-size:12px; }
+      .brand img { width:27px; }
+    }
+    @media (max-width:425px) {
+      .menu-toggle {
+        display:inline-flex!important; z-index:60;
+        border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.06);
+        color:#fff; border-radius:12px; width:44px; height:44px;
+        min-width:44px; min-height:44px; padding:0; font-size:22px;
+        line-height:1; cursor:pointer; align-items:center; justify-content:center;
+      }
+      .menu-toggle:hover { background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.28); }
+      .nav-links {
+        display:flex!important; position:absolute;
+        top:calc(100% + 12px); left:50%;
+        width:min(320px,calc(100% - 24px));
+        transform:translateX(-50%) translateY(-12px) scale(0.96);
+        flex-direction:column; align-items:stretch; gap:0; padding:8px 0;
+        border:1px solid rgba(255,255,255,.14); border-radius:16px;
+        background:rgba(8,10,17,.94);
+        backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+        box-shadow:0 18px 50px rgba(0,0,0,.45); z-index:55;
+        opacity:0; visibility:hidden; pointer-events:none;
+        transform-origin:top center;
+        transition:opacity .28s, transform .32s, visibility .28s;
+      }
+      .nav-links.open {
+        opacity:1; visibility:visible; pointer-events:auto;
+        transform:translateX(-50%) translateY(0) scale(1);
+      }
+      .nav-links a {
+        padding:14px 20px; border-bottom:1px solid rgba(255,255,255,.08);
+        font-size:15px; color:#e2e5ef; text-align:center;
+      }
+      .nav-links a:last-child { border-bottom:0; }
+      .nav-links a:after { display:none; }
+      .nav-links a:hover { color:#fff; background:rgba(255,255,255,.05); }
+    }
+
+    #bh { position:fixed; inset:0; width:100%; height:100%; z-index:0; }
+    .vignette {
+      position:fixed; inset:0; z-index:1; pointer-events:none;
+      background:
+        radial-gradient(ellipse 90% 55% at 50% 70%, rgba(100,60,220,.18) 0%, transparent 55%),
+        radial-gradient(ellipse 100% 55% at 50% 100%, rgba(20,8,50,.55) 0%, transparent 50%),
+        linear-gradient(to bottom, rgba(3,0,20,.4) 0%, transparent 28%, transparent 48%, rgba(3,0,20,.75) 100%);
+    }
+
+    .content {
+      position:relative; z-index:10;
+      height:100%;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:flex-start;
+      text-align:center;
+      padding:110px 24px 0;
+      pointer-events:none;
+    }
+    .content > * { pointer-events:auto; }
+
+    h1 {
+      font-size:clamp(68px,13vw,120px);
+      font-weight:500; letter-spacing:-0.03em; line-height:0.7;
+      color:#fff; margin-bottom:28px;
+      text-shadow:0 0 60px rgba(180,150,255,.35);
+    }
+    .quote {
+      max-width:640px; font-size:15px; line-height:1.5;
+      color:rgba(200,195,220,.75); margin-bottom:6px;
+    }
+    .quote-author {
+      font-size:15px; color:rgba(200,195,220,.75); margin-bottom:0;
+    }
+    .btn-home {
+      display:inline-flex; align-items:center;
+      margin-top: 21vh;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.14);
+      color:#e8e4f5; font-size:14px; font-weight:500;
+      padding:11px 22px; border-radius:999px;
+      backdrop-filter:blur(12px);
+      transition:background .2s, border-color .2s, transform .15s;
+    }
+    .btn-home:hover {
+      background:rgba(255,255,255,.12);
+      border-color:rgba(255,255,255,.22);
+      transform:translateY(-1px);
+    }
+    footer {
+      position:fixed; bottom:0; left:0; right:0; z-index:20;
+      display:flex; justify-content:space-between;
+      padding:16px 28px; font-size:12px;
+      color:rgba(150,145,175,.45); pointer-events:none;
+    }
+    @media (max-width:650px) {
+      .content { padding-top:85px; }
+      h1 { font-size:64px; }
+      .btn-home { margin-top: 18vh; }
+      footer { padding:12px 16px; font-size:11px; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bh"></canvas>
+  <div class="vignette"></div>
+
+  <header class="topbar" id="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/" aria-label="КАША ТИМ — на главную">
+        <img src="https://avatars.mds.yandex.net/i?id=e1041dac2fa63528e36df7617a8dc47c_l-5089089-images-thumbs&n=13" alt="Логотип">
+        <span>КАША ТИМ</span>
+      </a>
+      <nav class="nav-links" id="navLinks" aria-label="Главная навигация">
+        <a href="/dashboard/">Исследовать</a>
+        <a href="/#about">О нас</a>
+        <a href="/#project">О проекте</a>
+      </nav>
+      <button class="menu-toggle" id="menuToggle" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="navLinks">☰</button>
+    </div>
+  </header>
+
+  <main class="content">
+    <h1>Упс</h1>
+    <p class="quote">«Третий закон Ньютона. Нужно что-то оставить после себя».</p>
+    <p class="quote-author">– Купер, «Интерстеллар».</p>
+    <a class="btn-home" href="/">Вернуться на главную</a>
+  </main>
+
+  <footer>
+    <span>Ошибка 404</span>
+    <span>Страница не найдена...</span>
+  </footer>
+
+  <script>
+    (() => {
+      const topbar = document.getElementById('topbar');
+      const navLinks = document.getElementById('navLinks');
+      const menuToggle = document.getElementById('menuToggle');
+      const onScroll = () => topbar.classList.toggle('scrolled', window.scrollY > 10);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+      const setMenu = (open) => {
+        if (!navLinks || !menuToggle) return;
+        navLinks.classList.toggle('open', open);
+        menuToggle.setAttribute('aria-expanded', String(open));
+      };
+      if (menuToggle && navLinks) {
+        menuToggle.addEventListener('click', (e) => {
+          e.stopPropagation();
+          setMenu(!navLinks.classList.contains('open'));
+        });
+        navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+        document.addEventListener('click', (e) => {
+          if (!navLinks.contains(e.target) && e.target !== menuToggle) setMenu(false);
+        });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
+        window.addEventListener('resize', () => { if (window.innerWidth > 425) setMenu(false); }, { passive: true });
+      }
+    })();
+  </script>
+
+  <script type="importmap">
+  { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
+
+    /**
+     * Interstellar-style black hole
+     * - Perfect pitch-black event horizon
+     * - Bright photon sphere + gravitational lensing look
+     * - Horizontal accretion disk glow
+     * - Soft mirrored light above / below the shadow
+     * - Tiny particles falling from top & bottom
+     */
+
+    const canvas = document.getElementById('bh');
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 1);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+    camera.position.set(0, 1.55, 9.2);
+    camera.lookAt(0, -0.15, 0);
+
+    // ----- Noise -----
+    function createNoiseTexture(size = 256) {
+      const data = new Uint8Array(size * size * 4);
+      for (let i = 0; i < size * size; i++) {
+        const v = Math.random() * 255;
+        data[i * 4] = data[i * 4 + 1] = data[i * 4 + 2] = v;
+        data[i * 4 + 3] = 255;
+      }
+      const out = new Uint8Array(size * size * 4);
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          let s = 0, c = 0;
+          for (let dy = -1; dy <= 1; dy++) {
+            for (let dx = -1; dx <= 1; dx++) {
+              const nx = (x + dx + size) % size;
+              const ny = (y + dy + size) % size;
+              s += data[(ny * size + nx) * 4];
+              c++;
+            }
+          }
+          const i = (y * size + x) * 4;
+          out[i] = out[i + 1] = out[i + 2] = s / c;
+          out[i + 3] = 255;
+        }
+      }
+      const tex = new THREE.DataTexture(out, size, size, THREE.RGBAFormat);
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      tex.needsUpdate = true;
+      return tex;
+    }
+    const noiseTex = createNoiseTexture(256);
+
+    // ----- Pitch-black event horizon -----
+    const horizon = new THREE.Mesh(
+      new THREE.SphereGeometry(1.08, 64, 48),
+      new THREE.MeshBasicMaterial({ color: 0x000000 })
+    );
+    horizon.position.y = -0.15;
+    scene.add(horizon);
+
+    // Soft inward glow on the black disk (edge only, center stays black)
+    const innerGlowMat = new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      side: THREE.FrontSide,
+      uniforms: {
+        uColor: { value: new THREE.Color('#d4c0ff') },
+      },
+      vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vView;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          vView = normalize(-mv.xyz);
+          gl_Position = projectionMatrix * mv;
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 uColor;
+        varying vec3 vNormal;
+        varying vec3 vView;
+        void main() {
+          float fresnel = 1.0 - abs(dot(vNormal, vView));
+          fresnel = pow(clamp(fresnel, 0.0, 1.0), 2.4);
+          float rim = smoothstep(0.2, 0.85, fresnel);
+          gl_FragColor = vec4(uColor, rim * 0.18);
+        }
+      `,
+    });
+    const innerGlowMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(1.082, 64, 48),
+      innerGlowMat
+    );
+    innerGlowMesh.position.y = -0.15;
+    scene.add(innerGlowMesh);
+
+    // ----- Accretion disk -----
+    const discGeo = new THREE.CylinderGeometry(5.6, 1.2, 0.001, 96, 12, true);
+    const discMat = new THREE.ShaderMaterial({
+      side: THREE.DoubleSide,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      transparent: true,
+      uniforms: {
+        uTime: { value: 0 },
+        uNoiseTexture: { value: noiseTex },
+        uInnerColor: { value: new THREE.Color('#f0e6ff') },
+        uOuterColor: { value: new THREE.Color('#6b3dff') },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform sampler2D uNoiseTexture;
+        uniform vec3 uInnerColor;
+        uniform vec3 uOuterColor;
+        varying vec2 vUv;
+
+        float inverseLerp(float v, float minValue, float maxValue) {
+          return (v - minValue) / (maxValue - minValue);
+        }
+        vec3 blendAdd(vec3 base, vec3 blend) {
+          return min(base + blend, vec3(1.0));
+        }
+
+        void main() {
+          vec3 color = vec3(0.0);
+          float iterations = 4.0;
+
+          for (float i = 0.0; i < 4.0; i++) {
+            float progress = i / (iterations - 1.0);
+            float intensity = 1.0 - ((vUv.y - progress) * iterations) * 0.5;
+            intensity = smoothstep(0.0, 1.0, intensity);
+
+            vec2 uv = vUv;
+            uv.y *= 2.0;
+            uv.x += uTime / ((i * 10.0) + 1.0);
+
+            vec3 ringColor = mix(uInnerColor, uOuterColor, progress);
+            float noiseIntensity = texture2D(uNoiseTexture, uv).r;
+            ringColor = mix(vec3(0.0), ringColor, noiseIntensity * intensity);
+            color = blendAdd(color, ringColor);
+          }
+
+          float edgesAttenuation = min(
+            inverseLerp(vUv.y, 0.0, 0.02),
+            inverseLerp(vUv.y, 1.0, 0.5)
+          );
+          color = mix(vec3(0.0), color, edgesAttenuation);
+
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `,
+    });
+    const disc = new THREE.Mesh(discGeo, discMat);
+    disc.position.y = -0.15;
+    scene.add(disc);
+
+    // ----- Starfield -----
+    {
+      const STAR_N = 1600;
+      const starPos = new Float32Array(STAR_N * 3);
+      const starSize = new Float32Array(STAR_N);
+      const starPhase = new Float32Array(STAR_N);
+      for (let i = 0; i < STAR_N; i++) {
+        const r = 28 + Math.random() * 50;
+        const th = Math.random() * Math.PI * 2;
+        const ph = Math.acos(2 * Math.random() - 1);
+        starPos[i*3]     = r * Math.sin(ph) * Math.cos(th);
+        starPos[i*3 + 1] = r * Math.cos(ph);
+        starPos[i*3 + 2] = r * Math.sin(ph) * Math.sin(th);
+        starSize[i] = 0.5 + Math.random() * 1.8;
+        starPhase[i] = Math.random();
+      }
+      const sGeo = new THREE.BufferGeometry();
+      sGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+      sGeo.setAttribute('aSize', new THREE.BufferAttribute(starSize, 1));
+      sGeo.setAttribute('aPhase', new THREE.BufferAttribute(starPhase, 1));
+      const sMat = new THREE.ShaderMaterial({
+        transparent: true,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        uniforms: {
+          uTime: { value: 0 },
+          uPixelRatio: { value: Math.min(devicePixelRatio, 2) },
+        },
+        vertexShader: `
+          attribute float aSize;
+          attribute float aPhase;
+          uniform float uTime;
+          uniform float uPixelRatio;
+          varying float vA;
+          void main() {
+            vA = 0.3 + 0.7 * (0.5 + 0.5 * sin(uTime * (0.7 + aPhase * 1.4) + aPhase * 35.0));
+            vec4 mv = modelViewMatrix * vec4(position, 1.0);
+            gl_PointSize = aSize * uPixelRatio * (0.85 + 0.35 * vA) * (170.0 / -mv.z);
+            gl_Position = projectionMatrix * mv;
+          }
+        `,
+        fragmentShader: `
+          varying float vA;
+          void main() {
+            float d = length(gl_PointCoord - 0.5) * 2.0;
+            float g = exp(-d * d * 4.2);
+            gl_FragColor = vec4(vec3(0.88, 0.84, 1.0), g * vA * 0.65);
+          }
+        `,
+      });
+      const stars = new THREE.Points(sGeo, sMat);
+      stars.frustumCulled = false;
+      scene.add(stars);
+      window.__starsMat = sMat;
+    }
+
+    // ----- Main disc particles -----
+    const COUNT = 20000;
+    const distArr = new Float32Array(COUNT);
+    const angleArr = new Float32Array(COUNT);
+    const yArr = new Float32Array(COUNT);
+    const speedArr = new Float32Array(COUNT);
+    const sizeArr = new Float32Array(COUNT);
+    const randArr = new Float32Array(COUNT);
+    for (let i = 0; i < COUNT; i++) {
+      distArr[i]  = 1.35 + Math.random() * 7.2;
+      angleArr[i] = Math.random() * Math.PI * 2;
+      yArr[i]     = (Math.random() - 0.5) * 1.6;
+      speedArr[i] = 0.14 + Math.random() * 0.5;
+      sizeArr[i]  = 0.35 + Math.random() * 1.0;
+      randArr[i]  = Math.random();
+    }
+    const pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(COUNT * 3), 3));
+    pGeo.setAttribute('aRadius', new THREE.BufferAttribute(distArr, 1));
+    pGeo.setAttribute('aAngle', new THREE.BufferAttribute(angleArr, 1));
+    pGeo.setAttribute('aY', new THREE.BufferAttribute(yArr, 1));
+    pGeo.setAttribute('aSpeed', new THREE.BufferAttribute(speedArr, 1));
+    pGeo.setAttribute('aSize', new THREE.BufferAttribute(sizeArr, 1));
+    pGeo.setAttribute('aRandom', new THREE.BufferAttribute(randArr, 1));
+
+    const pMat = new THREE.ShaderMaterial({
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      transparent: true,
+      uniforms: {
+        uTime: { value: 0 },
+        uInnerColor: { value: new THREE.Color('#f8f0ff') },
+        uOuterColor: { value: new THREE.Color('#9b75ff') },
+        uSize: { value: 0.028 },
+        uPixelRatio: { value: Math.min(devicePixelRatio, 2) },
+      },
+      vertexShader: `
+        attribute float aRadius;
+        attribute float aAngle;
+        attribute float aY;
+        attribute float aSpeed;
+        attribute float aSize;
+        attribute float aRandom;
+        uniform float uTime;
+        uniform float uSize;
+        uniform float uPixelRatio;
+        varying float vProgress;
+        varying float vRandom;
+
+        void main() {
+          float cycle = 9.0 + aRandom * 6.0;
+          float t = mod(uTime * aSpeed + aRandom * cycle, cycle);
+          float progress = t / cycle;
+          vProgress = progress;
+          vRandom = aRandom;
+
+          float radius = mix(aRadius, 1.08, progress * progress);
+          float angle = aAngle + uTime * (0.22 + aRandom * 0.35) + progress * 3.2;
+          float y = aY * (1.0 - progress * 0.85);
+
+          vec3 pos = vec3(cos(angle) * radius, y, sin(angle) * radius);
+          vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+          gl_Position = projectionMatrix * mv;
+
+          float size = uSize * aSize * uPixelRatio * (0.55 + progress * 1.35);
+          gl_PointSize = size * (135.0 / -mv.z);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 uInnerColor;
+        uniform vec3 uOuterColor;
+        varying float vProgress;
+        varying float vRandom;
+
+        void main() {
+          float d = length(gl_PointCoord - 0.5) * 2.0;
+          if (d > 1.0) discard;
+          float alpha = exp(-d * d * 3.4);
+          float fade = smoothstep(0.0, 0.07, vProgress) * (1.0 - smoothstep(0.82, 1.0, vProgress));
+          vec3 col = mix(uOuterColor, uInnerColor, vProgress);
+          col *= 0.7 + 0.4 * vRandom;
+          gl_FragColor = vec4(col, alpha * fade * 0.85);
+        }
+      `,
+    });
+    const particles = new THREE.Points(pGeo, pMat);
+    particles.frustumCulled = false;
+    particles.position.y = -0.15;
+    scene.add(particles);
+
+    // ============================================================
+    // TINY particles falling from TOP and BOTTOM
+    // ============================================================
+    const FALL_COUNT = 16;
+    const fRadius = new Float32Array(FALL_COUNT);
+    const fAngle  = new Float32Array(FALL_COUNT);
+    const fStartY = new Float32Array(FALL_COUNT);
+    const fSpeed  = new Float32Array(FALL_COUNT);
+    const fSize   = new Float32Array(FALL_COUNT);
+    const fRand   = new Float32Array(FALL_COUNT);
+    const fSide   = new Float32Array(FALL_COUNT);
+
+    for (let i = 0; i < FALL_COUNT; i++) {
+      fRadius[i] = 1.1 + Math.random() * 2.4;
+      fAngle[i]  = Math.random() * Math.PI * 2;
+      fStartY[i] = 3.0 + Math.random() * 3.2;
+      fSpeed[i]  = 0.16 + Math.random() * 0.22;
+      fSize[i]   = 0.28 + Math.random() * 0.35;   // very small
+      fRand[i]   = Math.random();
+      fSide[i]   = (i % 2 === 0) ? 1.0 : -1.0;
+    }
+
+    const fGeo = new THREE.BufferGeometry();
+    fGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(FALL_COUNT * 3), 3));
+    fGeo.setAttribute('aRadius', new THREE.BufferAttribute(fRadius, 1));
+    fGeo.setAttribute('aAngle',  new THREE.BufferAttribute(fAngle, 1));
+    fGeo.setAttribute('aStartY', new THREE.BufferAttribute(fStartY, 1));
+    fGeo.setAttribute('aSpeed',  new THREE.BufferAttribute(fSpeed, 1));
+    fGeo.setAttribute('aSize',   new THREE.BufferAttribute(fSize, 1));
+    fGeo.setAttribute('aRandom', new THREE.BufferAttribute(fRand, 1));
+    fGeo.setAttribute('aSide',   new THREE.BufferAttribute(fSide, 1));
+
+    const fMat = new THREE.ShaderMaterial({
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      transparent: true,
+      uniforms: {
+        uTime: { value: 0 },
+        uPixelRatio: { value: Math.min(devicePixelRatio, 2) },
+      },
+      vertexShader: `
+        attribute float aRadius;
+        attribute float aAngle;
+        attribute float aStartY;
+        attribute float aSpeed;
+        attribute float aSize;
+        attribute float aRandom;
+        attribute float aSide;
+        uniform float uTime;
+        uniform float uPixelRatio;
+        varying float vProgress;
+        varying float vRandom;
+
+        void main() {
+          float cycle = 8.0 + aRandom * 5.5;
+          float t = mod(uTime * aSpeed + aRandom * cycle, cycle);
+          float progress = t / cycle;
+          vProgress = progress;
+          vRandom = aRandom;
+
+          float radius = mix(aRadius, 1.05, progress * progress);
+          float angle  = aAngle + uTime * (0.12 + aRandom * 0.2) + progress * 2.0;
+          float y = aSide * mix(aStartY, 0.0, progress);
+
+          vec3 pos = vec3(cos(angle) * radius, y, sin(angle) * radius);
+          vec4 mv = modelViewMatrix * vec4(pos, 1.0);
+          gl_Position = projectionMatrix * mv;
+
+          // very small points
+          float size = aSize * uPixelRatio * (0.55 + progress * 0.9);
+          gl_PointSize = size * (95.0 / -mv.z);
+        }
+      `,
+      fragmentShader: `
+        varying float vProgress;
+        varying float vRandom;
+
+        void main() {
+          float d = length(gl_PointCoord - 0.5) * 2.0;
+          if (d > 1.0) discard;
+          float alpha = exp(-d * d * 3.5);
+          float fade = smoothstep(0.0, 0.1, vProgress) * (1.0 - smoothstep(0.8, 1.0, vProgress));
+          vec3 col = mix(vec3(0.92, 0.86, 1.0), vec3(0.6, 0.4, 1.0), vProgress);
+          col *= 0.8 + 0.3 * vRandom;
+          gl_FragColor = vec4(col, alpha * fade * 0.75);
+        }
+      `,
+    });
+    const fallParticles = new THREE.Points(fGeo, fMat);
+    fallParticles.frustumCulled = false;
+    fallParticles.position.y = -0.15;
+    scene.add(fallParticles);
+
+    // ============================================================
+    // GLOW — Interstellar style
+    // Center stays pitch black. All light is on the photon sphere
+    // and the lensed accretion disk (above + below the shadow).
+    // ============================================================
+    const makeGlow = (stops) => {
+      const s = 512;
+      const c = document.createElement('canvas');
+      c.width = c.height = s;
+      const g = c.getContext('2d');
+      const grd = g.createRadialGradient(s/2, s/2, 0, s/2, s/2, s/2);
+      stops.forEach(([t, col]) => grd.addColorStop(t, col));
+      g.fillStyle = grd;
+      g.fillRect(0, 0, s, s);
+      const tex = new THREE.CanvasTexture(c);
+      tex.magFilter = THREE.LinearFilter;
+      tex.minFilter = THREE.LinearFilter;
+      return tex;
+    };
+
+    // Sharp bright photon sphere (the perfect ring)
+    const photonRing = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: makeGlow([
+        [0.00, 'rgba(0,0,0,0)'],
+        [0.38, 'rgba(0,0,0,0)'],
+        [0.455, 'rgba(255,255,255,1)'],
+        [0.51, 'rgba(255,250,255,1)'],
+        [0.58, 'rgba(230,200,255,0.85)'],
+        [0.7,  'rgba(160,120,255,0.3)'],
+        [0.85, 'rgba(100,60,220,0.08)'],
+        [1.00, 'rgba(0,0,0,0)'],
+      ]),
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      depthWrite: false,
+    }));
+    photonRing.scale.set(3.55, 3.55, 1);
+    photonRing.position.y = -0.15;
+    scene.add(photonRing);
+
+    // Even tighter secondary ring for crisp edge
+    const photonRingTight = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: makeGlow([
+        [0.00, 'rgba(0,0,0,0)'],
+        [0.44, 'rgba(0,0,0,0)'],
+        [0.49, 'rgba(255,255,255,1)'],
+        [0.54, 'rgba(250,245,255,0.9)'],
+        [0.65, 'rgba(190,160,255,0.25)'],
+        [1.00, 'rgba(0,0,0,0)'],
+      ]),
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      depthWrite: false,
+    }));
+    photonRingTight.scale.set(3.05, 3.05, 1);
+    photonRingTight.position.y = -0.15;
+    scene.add(photonRingTight);
+
+    // Soft light right at the edge of the black sphere
+    // (creates the classic "bright rim against pure black" look)
+    const rimGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: makeGlow([
+        [0.00, 'rgba(0,0,0,0)'],
+        [0.32, 'rgba(0,0,0,0)'],
+        [0.42, 'rgba(255,255,255,0.7)'],
+        [0.52, 'rgba(230,210,255,0.55)'],
+        [0.68, 'rgba(160,120,255,0.2)'],
+        [0.88, 'rgba(90,50,200,0.04)'],
+        [1.00, 'rgba(0,0,0,0)'],
+      ]),
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      depthWrite: false,
+    }));
+    rimGlow.scale.set(2.85, 2.85, 1);
+    rimGlow.position.y = -0.15;
+    scene.add(rimGlow);
+
+    // Soft fill OUTSIDE the horizon only (center stays black — no fill inside)
+    const glowCore = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: makeGlow([
+        [0.00, 'rgba(0,0,0,0)'],
+        [0.22, 'rgba(0,0,0,0)'],
+        [0.35, 'rgba(200,175,255,0.25)'],
+        [0.5,  'rgba(170,140,255,0.18)'],
+        [0.7,  'rgba(110,75,210,0.07)'],
+        [1.00, 'rgba(0,0,0,0)'],
+      ]),
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      depthWrite: false,
+    }));
+    glowCore.scale.setScalar(4.6);
+    glowCore.position.y = -0.15;
+    scene.add(glowCore);
+
+    // Upper mirrored glow (gravitational lensing of the disk above)
+    const glowDome = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: makeGlow([
+        [0.00, 'rgba(185,145,255,0.55)'],
+        [0.2,  'rgba(130,90,240,0.28)'],
+        [0.45, 'rgba(90,50,200,0.1)'],
+        [0.75, 'rgba(50,25,140,0.02)'],
+        [1.00, 'rgba(0,0,0,0)'],
+      ]),
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      depthWrite: false,
+    }));
+    glowDome.scale.set(11.5, 8.5, 1);
+    glowDome.position.set(0, 0.4, 0);
+    scene.add(glowDome);
+
+    // Lower mirrored glow (reflection of the disk below the shadow)
+    const glowBelow = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: makeGlow([
+        [0.00, 'rgba(175,135,255,0.45)'],
+        [0.22, 'rgba(120,80,230,0.2)'],
+        [0.5,  'rgba(75,40,175,0.06)'],
+        [1.00, 'rgba(0,0,0,0)'],
+      ]),
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      depthWrite: false,
+    }));
+    glowBelow.scale.set(9.5, 6.2, 1);
+    glowBelow.position.set(0, -1.05, 0);
+    scene.add(glowBelow);
+
+    // Wide soft corona
+    const glowWide = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: makeGlow([
+        [0.00, 'rgba(120,80,230,0.32)'],
+        [0.3,  'rgba(80,45,180,0.1)'],
+        [0.65, 'rgba(50,25,130,0.025)'],
+        [1.00, 'rgba(0,0,0,0)'],
+      ]),
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      depthWrite: false,
+    }));
+    glowWide.scale.setScalar(18);
+    glowWide.position.y = -0.15;
+    scene.add(glowWide);
+
+    // Strong horizontal streak (accretion disk light)
+    const streak = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: makeGlow([
+        [0.00, 'rgba(255,252,255,1)'],
+        [0.07, 'rgba(245,230,255,0.9)'],
+        [0.2,  'rgba(195,160,255,0.5)'],
+        [0.42, 'rgba(130,90,240,0.15)'],
+        [0.75, 'rgba(80,45,180,0.03)'],
+        [1.00, 'rgba(0,0,0,0)'],
+      ]),
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      depthWrite: false,
+    }));
+    streak.scale.set(21, 2.3, 1);
+    streak.position.y = -0.15;
+    scene.add(streak);
+
+    // Soft wider streak
+    const streakSoft = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: makeGlow([
+        [0.00, 'rgba(195,155,255,0.5)'],
+        [0.22, 'rgba(130,90,235,0.18)'],
+        [0.55, 'rgba(80,45,180,0.04)'],
+        [1.00, 'rgba(0,0,0,0)'],
+      ]),
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      depthWrite: false,
+    }));
+    streakSoft.scale.set(26, 4.5, 1);
+    streakSoft.position.y = -0.15;
+    scene.add(streakSoft);
+
+    // Outer bloom
+    const glowBloom = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: makeGlow([
+        [0.00, 'rgba(150,110,255,0.28)'],
+        [0.35, 'rgba(95,55,200,0.09)'],
+        [0.7,  'rgba(55,30,140,0.02)'],
+        [1.00, 'rgba(0,0,0,0)'],
+      ]),
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      depthWrite: false,
+    }));
+    glowBloom.scale.set(15, 13, 1);
+    glowBloom.position.set(0, 0.05, 0);
+    scene.add(glowBloom);
+
+    // ----- Animate -----
+    const layout = () => {
+      const w = innerWidth, h = innerHeight;
+      renderer.setSize(w, h);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    };
+    addEventListener('resize', layout);
+    layout();
+
+    const clock = new THREE.Clock();
+    function frame() {
+      const t = clock.getElapsedTime();
+      discMat.uniforms.uTime.value = t * 0.14;
+      pMat.uniforms.uTime.value = t;
+      fMat.uniforms.uTime.value = t;
+      if (window.__starsMat) window.__starsMat.uniforms.uTime.value = t;
+
+      const b = 1 + 0.022 * Math.sin(t * 0.65);
+      photonRing.scale.setScalar(3.55 * b);
+      photonRingTight.scale.setScalar(3.05 * (1 + 0.015 * Math.sin(t * 0.85)));
+      rimGlow.scale.setScalar(2.85 * b);
+      glowCore.scale.setScalar(4.6 * b);
+      glowDome.scale.set(11.5 * b, 8.5 * b, 1);
+      glowBelow.scale.set(9.5 * b, 6.2 * b, 1);
+      glowWide.scale.setScalar(18 * (1 + 0.018 * Math.sin(t * 0.45)));
+      glowBloom.scale.set(15 * b, 13 * b, 1);
+      streak.scale.x = 21 * (1 + 0.04 * Math.sin(t * 0.38));
+      streakSoft.scale.x = 26 * (1 + 0.03 * Math.sin(t * 0.32));
+
+      camera.position.x = Math.sin(t * 0.045) * 0.22;
+      camera.position.y = 1.55 + Math.sin(t * 0.035) * 0.08;
+      camera.lookAt(0, -0.12, 0);
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(frame);
+    }
+    frame();
+  </script>
+</body>
+</html>
