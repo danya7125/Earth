@@ -2,11 +2,8 @@ import csv
 import hashlib
 import io
 import json
-import logging
 import os
 import tempfile
-import threading
-import time
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlencode
@@ -19,11 +16,6 @@ from .science import COLUMNS, classify, measured_positive
 
 TAP = "https://exoplanetarchive.ipac.caltech.edu/TAP/sync"
 TTL = 24 * 3600
-_lock = threading.Lock()
-_retry_after = 0
-logger = logging.getLogger(__name__)
-
-
 def catalog_path():
     return Path(settings.BASE_DIR) / "data" / "nasa_candidates.json"
 
@@ -72,43 +64,24 @@ def refresh(raw=None):
     data = calculate(raw)
     path = catalog_path()
     path.parent.mkdir(parents=True, exist_ok=True)
+    payload = json.dumps(data, ensure_ascii=False, allow_nan=False).encode("utf-8")
+    replace_bytes(path.with_name("nasa_pscomppars.csv"), raw)
+    replace_bytes(path, payload)
+    return data
+
+
+def replace_bytes(path, payload):
     with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as stream:
         temp = Path(stream.name)
-        try:
-            stream.write(json.dumps(data, ensure_ascii=False, allow_nan=False).encode("utf-8"))
-        except BaseException:
-            stream.close()
-            temp.unlink(missing_ok=True)
-            raise
     try:
+        temp.write_bytes(payload)
         os.replace(temp, path)
     finally:
         temp.unlink(missing_ok=True)
-    return data
-
-
-def _update_background():
-    global _retry_after
-    try:
-        refresh()
-    except (OSError, ValueError):
-        logger.exception("Не удалось обновить каталог NASA")
-        _retry_after = time.monotonic() + 300
-    finally:
-        _lock.release()
 
 
 def load():
-    path = catalog_path()
-    try:
-        data = json.loads(path.read_bytes())
-    except FileNotFoundError:
-        with _lock:
-            return json.loads(path.read_bytes()) if path.exists() else refresh()
-    age = time.time() - datetime.fromisoformat(data["fetched_at"]).timestamp()
-    if age > TTL and time.monotonic() >= _retry_after and _lock.acquire(blocking=False):
-        threading.Thread(target=_update_background, daemon=True).start()
-    return data
+    return json.loads(catalog_path().read_bytes())
 
 
 def ranked(data, zone="all", metric="esi_interior"):

@@ -2,7 +2,7 @@ services:
   web:
     build: .
 
-    command: python manage.py tailwind runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8000
 
     volumes:
       - .:/app
@@ -10,7 +10,10 @@ services:
     ports:
       - "8000:8000"
 
-    environment:
-      - PYTHONUNBUFFERED=1
 
-    tty: true
+  catalog-worker:
+    build: .
+    command: python manage.py refresh_planets --daily
+    restart: unless-stopped
+    volumes:
+      - .:/app

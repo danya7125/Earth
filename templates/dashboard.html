@@ -1,4 +1,4 @@
-{% load static tailwind_cli %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru" data-theme="dark">
 <head>
@@ -8,7 +8,7 @@
   <meta name="description" content="КАША ТИМ — исследуй экзопланеты и открывай новые миры.">
   <title>The EXOPLANETS</title>
   <link rel="icon" type="image/png" href="{% static 'image/planet_icon.png' %}">
-  {% tailwind_css %}
+  <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">

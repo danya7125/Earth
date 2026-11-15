@@ -1,0 +1,6 @@
+.git
+.django_tailwind_cli
+**/__pycache__
+.venv
+venv
+data/
