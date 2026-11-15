@@ -42,18 +42,63 @@
 })();
 
 /* ================= Дашборд: сцена Three.js + UI ================= */
-/* Планеты берутся из planets.json (заглушка БД). Позже — fetch('/api/v1/planets/'). */
+
 window.addEventListener('DOMContentLoaded', async () => {
   'use strict';
   const app = document.getElementById('app');
-  if (!app || !window.THREE) return;
+  if (!app) return;
   const $ = (id) => document.getElementById(id);
-  const T = THREE;
-
-  let planets = [];
-  try { planets = (await (await fetch(app.dataset.planets)).json()).data; }
-  catch (e) { console.error('Не удалось загрузить planets.json', e); return; }
-  planets.sort((a, b) => b.esi_score - a.esi_score).forEach((p, i) => (p.rank = i + 1)); // место по ESI — всегда честное
+  const form = $('criteria');
+  const notice = $('catalogNotice');
+  const params = new URLSearchParams(location.search);
+  const api = new URL(app.dataset.planets, location.href);
+  for (const select of form.querySelectorAll('select')) {
+    if ([...select.options].some(o => o.value === params.get(select.name))) select.value = params.get(select.name);
+    api.searchParams.set(select.name, select.value);
+  }
+  const fx = (value, digits=2) => value == null ? '—' : value.toLocaleString('ru-RU', {maximumFractionDigits:digits});
+  const yes = value => value == null ? 'Нет данных' : value ? 'Да' : 'Нет';
+  const pct = value => value == null ? '—' : fx(value * 100,1)+' %';
+  const esc = text => String(text).replace(/[&<>"']/g, c => ({'&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'}[c]));
+  const metrics = p => [
+    ['Внутренний ESI', fx(p.esi_interior,4)], ['ESI по равновесной температуре', fx(p.esi_equilibrium_proxy,4)],
+    ['Глобальный ESI по температуре поверхности',fx(p.esi_global,4)],
+    ['Радиус, R⊕', fx(p.pl_rade)], ['Масса, M⊕',fx(p.pl_bmasse)],
+    ['Источник массы', p.mass_source === 'true_mass' ? 'Масса из каталога' : 'Минимальная масса с поправкой на наклонение'],
+    ['Звезда', p.hostname], ['Спектральный класс',p.st_spectype === 'unlisted' ? '—' : p.st_spectype],
+    ['Расстояние, св. лет',fx(p.distance_ly)], ['Год открытия',p.disc_year || '—'],
+    ['Орбитальный период, дни',fx(p.pl_orbper)], ['Большая полуось, а.е.',fx(p.pl_orbsmax,3)],
+    ['Равновесная температура, K',fx(p.pl_eqt,1)], ['Средний поток, S⊕',fx(p.flux_earth,3)],
+    ['Эксцентриситет',fx(p.ecc_used,3)+(p.ecc_source==='measured'?'':' (принята круговая орбита)')],
+    ['В консервативной зоне по среднему потоку',yes(p.in_conservative_hz)],
+    ['В оптимистической зоне по среднему потоку',yes(p.in_optimistic_hz)],
+    ['Доля орбиты в консервативной зоне',pct(p.hz_time_fraction_cons)],
+    ['Доля орбиты в оптимистической зоне',pct(p.hz_time_fraction_opt)]
+  ];
+  const metricHtml = p => metrics(p).map(([k,v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('');
+  let planets;
+  function fallback(message) {
+    notice.hidden = false;
+    notice.replaceChildren(form);
+    const info = document.createElement('p'); info.textContent=message; notice.append(info);
+    for (const p of planets || []) {
+      const card=document.createElement('details'), title=document.createElement('summary'), dl=document.createElement('dl');
+      title.textContent=`${p.rank}. ${p.name} · ESI ${fx(p.esi_score,4)}`;
+      dl.innerHTML=metricHtml(p); card.append(title,dl); notice.append(card);
+    }
+  }
+  try {
+    const response=await fetch(api);
+    if (!response.ok) throw new Error(String(response.status));
+    const result=await response.json();
+    planets=result.data;
+    $('catalogCount').textContent=`${result.count} из ${result.candidates} · ESI`;
+  } catch {
+    fallback('Не удалось загрузить каталог NASA. Повторите запрос кнопкой «Применить».'); return;
+  }
+  if (!planets.length) { fallback('В этой выборке нет кандидатов.'); return; }
+  const T = window.THREE;
+  if (!T) { fallback('Рейтинг экзопланет'); return; }
 
   /* ---------- процедурные текстуры (3D-моделей нет — генерируем по данным) ---------- */
   const hash = (s) => { let h = 2166136261; for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return h >>> 0; };
@@ -80,7 +125,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   const mix = (a, b, t) => { t = Math.max(0, Math.min(1, t)); return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t]; };
 
   const kindOf = (p) => p.pl_rade > 6 ? 'gas' : p.pl_rade >= 2.2 ? 'ice' : p.pl_eqt > 1000 ? 'lava' : p.esi_score > .6 ? 'ocean' : 'barren';
-  const KIND = { gas: 'газовый гигант', ice: 'ледяной нептуноподобный мир', lava: 'раскалённая каменная планета', ocean: 'каменистая планета с умеренным климатом', barren: 'холодный каменистый мир' };
   const ATM = { gas: [.5, .7, 1], ice: [.5, .75, 1], lava: [1, .45, .15], ocean: [.4, .65, 1], barren: [.7, .6, .55] };
 
   const palette = (p, k) => {
@@ -201,7 +245,9 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   /* ---------- сцена ---------- */
   const stage = $('stage');
-  const renderer = new T.WebGLRenderer({ antialias: true, alpha: true });
+  let renderer;
+  try { renderer = new T.WebGLRenderer({ antialias: true, alpha: true }); }
+  catch { fallback('Рейтинг экзопланет · режим без 3D'); return; }
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   stage.appendChild(renderer.domElement);
   const scene = new T.Scene(), cam = new T.PerspectiveCamera(40, 1, .1, 200);
@@ -465,28 +511,20 @@ window.addEventListener('DOMContentLoaded', async () => {
   /* ---------- UI ---------- */
   const tween = (ms, f) => new Promise((res) => { const t0 = performance.now(); const s = (t) => { const k = Math.max(0, Math.min(1, (t - t0) / ms)); f(k); k < 1 ? requestAnimationFrame(s) : res(); }; requestAnimationFrame(s); });
   const ease = (k) => 1 - Math.pow(1 - k, 3);
-  const fx = (v, d = 2) => (v == null ? '—' : Number(v).toFixed(d).replace(/\.?0+$/, ''));
-  const grav = (p) => p.pl_bmasse / (p.pl_rade * p.pl_rade);
-  const scaleOf = (p) => Math.max(.7, Math.min(1.35, .85 + .4 * Math.log10(p.pl_rade)));
-  const descOf = (p) => {
-    const k = kindOf(p), t = p.pl_eqt;
-    return [
-      `${p.name} — ${KIND[k]}, обращается вокруг звезды класса ${p.st_spectype}. Радиус в ${fx(p.pl_rade)} раз ${p.pl_rade >= 1 ? 'больше' : 'меньше'} земного, масса — ${fx(p.pl_bmasse)} масс Земли.`,
-      `Равновесная температура около ${t} K (${Math.round(t - 273)} °C). ${p.esi_score > .8 ? 'Одна из самых земноподобных планет каталога.' : p.esi_score > .5 ? 'Условия лишь отдалённо напоминают земные.' : 'Для привычной нам жизни непригодна.'}`,
-    ];
-  };
-  const shortDesc = (p) => `${KIND[kindOf(p)]} · ${p.pl_eqt} K`;
+  const scaleOf = p => Math.max(.7, Math.min(1.35, .85 + .4 * Math.log10(p.pl_rade)));
+  const descOf = p => [
+    `Звезда ${p.hostname}. Радиус ${fx(p.pl_rade)} R⊕, масса ${fx(p.pl_bmasse)} M⊕.`,
+    `Внутренний ESI ${fx(p.esi_interior,4)}. Доля орбиты в консервативной зоне: ${pct(p.hz_time_fraction_cons)}. Изображение планеты иллюстративное.`
+  ];
+  const shortDesc = p => `ESI ${fx(p.esi_score,4)} · ${fx(p.pl_rade)} R⊕`;
 
   let cur = -1, busy = false, live = false, sortK = 'esi_score', sortDir = -1;
-  const rows = (p) => [['Радиус', `${fx(p.pl_rade)} R⊕`], ['Орб. период', `${fx(p.pl_orbper)} дн.`], ['Большая полуось', `${fx(p.pl_orbsmax, 3)} а.е.`], ['Гравитация', `${fx(grav(p))} g`], ['Темп. равновесная', `${p.pl_eqt} K`], ['Индекс ESI', `${fx(p.esi_score, 3)} · №${p.rank}`]];
-
   const fillText = (p) => {
     $('cName').textContent = p.name.toUpperCase(); const [a, b] = descOf(p); $('cD1').textContent = a; $('cD2').textContent = b;
   };
   const fillDrawer = (p) => {
     $('dName').textContent = p.name; $('dDesc').textContent = descOf(p).join(String.fromCharCode(10, 10)); const dc = $('dThumb').getContext('2d'); dc.clearRect(0, 0, 192, 192); dc.drawImage(thumb(p, 192), 0, 0);
-    const r = [['Тип', KIND[kindOf(p)]], ['Звезда', p.st_spectype], ['Масса', `${fx(p.pl_bmasse)} M⊕`], ['Плотность (отн.)', fx(p.pl_dens)], ['Скорость убегания', `${fx(p.v_esc * 11.186, 1)} км/с`], ['Каменистая', p.is_rocky ? 'да' : 'нет'], ['Качество данных', p.data_grade], ...rows(p)];
-    $('dData').innerHTML = r.map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('');
+    $('dData').innerHTML = metricHtml(p);
   };
   const setRail = (min) => { railEl.classList.toggle('min', min); app.classList.toggle('railmin', min); };
   const toggleDrawer = (open) => { // данные открываются прямо в правой панели вместо списка
@@ -494,7 +532,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     r.classList.toggle('detail', on); if (on) { setRail(false); fillDrawer(planets[cur]); }
   };
 
-  const cache = {}, hiList = [], frame = () => new Promise(requestAnimationFrame), maxA = renderer.capabilities.getMaxAnisotropy();
+  const cache = Object.create(null), hiList = [], frame = () => new Promise(requestAnimationFrame), maxA = renderer.capabilities.getMaxAnisotropy();
   const mk = (cv) => {
     const t = new T.CanvasTexture(cv);
     t.anisotropy = maxA;
@@ -505,7 +543,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   const BUMP = { barren: .12, lava: .09, ocean: .08, gas: 0.012, ice: 0.01 }, CLOUDY = { ocean: 1, lava: 1, ice: 1, gas: 1 };
   const show = (p, sf, cl) => { const k = kindOf(p), fresh = !mat.map || !!cloudMat.map !== !!cl; mat.map = sf; mat.bumpMap = sf; mat.bumpScale = BUMP[k]; cloud.visible = !!CLOUDY[k]; cloudMat.map = cl; if (fresh) { mat.needsUpdate = true; cloudMat.needsUpdate = true; } };
   const slice = async (j, ms, stop) => { while (!j.until(ms)) { await frame(); if (stop && stop()) return false; } return true; }; // кусок = ms миллисекунд на кадр
-  const pre = {};
+  const pre = Object.create(null);
   const prepare = (p) => pre[p.id] || (pre[p.id] = (async () => { // быстрая версия текстуры; считается, пока старая планета уходит (или пока играет солнце)
     const k = kindOf(p), js = texJob(p, 512, 256), jc = CLOUDY[k] ? texJob(p, 512, 256, true) : null;
     await slice(js, 10); if (jc) await slice(jc, 10);
@@ -551,11 +589,14 @@ window.addEventListener('DOMContentLoaded', async () => {
   list.innerHTML = '';
   planets.forEach((p, i) => {
     const li = document.createElement('li'); li.dataset.i = i;
-    li.innerHTML = `<div class="th"><svg viewBox="0 0 54 54"><circle cx="27" cy="27" r="24"/></svg></div><div><div class="nm">${p.name}</div><div class="ds">${shortDesc(p)}</div></div><div class="rk">ESI<b>#${p.rank}</b></div>`;
+    li.innerHTML = `<div class="th"><svg viewBox="0 0 54 54"><circle cx="27" cy="27" r="24"/></svg></div><div><div class="nm">${esc(p.name)}</div><div class="ds">${esc(shortDesc(p))}</div></div><div class="rk">ESI<b>#${p.rank}</b></div>`;
     li.querySelector('.th').prepend(thumb(p)); li.onclick = () => go(i, true); list.appendChild(li);
   });
   const resort = () => {
-    const items = [...list.children].sort((a, b) => sortDir * (planets[a.dataset.i][sortK] - planets[b.dataset.i][sortK]));
+    const items = [...list.children].sort((a, b) => {
+      const x=planets[a.dataset.i][sortK], y=planets[b.dataset.i][sortK];
+      return (x == null) - (y == null) || sortDir * (x-y);
+    });
     items.forEach((li) => list.appendChild(li));
   };
   $('sorts').onclick = (e) => {
@@ -574,7 +615,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     const n = dotsN, s = Math.max(0, Math.min(planets.length - n, cur - (n >> 1)));
     dots.innerHTML = '';
     planets.slice(s, s + n).forEach((p, k) => {
-      const b = document.createElement('button'); b.className = s + k === cur ? 'on' : ''; b.innerHTML = `<i></i><span>${p.name}</span>`; b.setAttribute('aria-label', p.name);
+      const b = document.createElement('button'); b.className = s + k === cur ? 'on' : ''; b.innerHTML = `<i></i><span>${esc(p.name)}</span>`; b.setAttribute('aria-label', p.name);
       b.onclick = () => go(s + k, false, Math.sign(s + k - cur)); dots.appendChild(b);
     });
     [...list.children].forEach((li) => li.classList.toggle('on', +li.dataset.i === cur));
@@ -599,7 +640,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   });
   await new Promise((r) => setTimeout(r, 1000));
   flash.style.transition = 'opacity .7s'; flash.style.opacity = 1; await new Promise((r) => setTimeout(r, 750));
-  scene.remove(sunG); intro.style.opacity = 0; // вернуться к солнцу нельзя (заглушка)
+  scene.remove(sunG); intro.style.opacity = 0;
   // возвращаем нормальный свет для планет
   sunLight.intensity = 2.4;
   sunLight.color.setRGB(1.0, 0.95, 0.86);

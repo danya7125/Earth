@@ -1,30 +1,30 @@
-from django.shortcuts import render
 from django.http import JsonResponse
-from .models import Exoplanet
+from django.shortcuts import render
+from django.views.decorators.http import require_GET
 
+from .catalog import load, ranked
+
+
+@require_GET
 def get_planets(request):
-    # Достаем первые 50 планет из базы, отсортированных по ESI
-    planets = Exoplanet.objects.all()[:50]
-    
-    data = []
-    for p in planets:
-        data.append({
-            "id": p.id,
-            "name": p.name,
-            "esi_score": p.esi_score,
-            "star_type": p.st_spectype,
-            "is_habitable": p.is_habitable
-        })
-        
-    return JsonResponse({
-        "status": "success", 
-        "count": len(data),
-        "data": data
-    })
+    zone = request.GET.get("zone", "all")
+    metric = request.GET.get("rank_by", "esi_interior")
+    if zone not in ("all", "optimistic", "conservative") or metric not in ("esi_interior", "esi_equilibrium_proxy"):
+        return JsonResponse({"status": "error", "message": "Неизвестный режим рейтинга"}, status=400)
+    try:
+        result = ranked(load(), zone, metric)
+    except (OSError, ValueError):
+        return JsonResponse({"status": "error", "message": "Каталог NASA временно недоступен"}, status=503)
+    return JsonResponse(result)
+
 
 def index(request):
-    return render(request, 'index.html')
+    try:
+        summary = ranked(load())
+    except (OSError, ValueError):
+        summary = None
+    return render(request, "index.html", {"catalog": summary})
+
 
 def dashboard(request):
-    return render(request, 'dashboard.html')
-
+    return render(request, "dashboard.html")

@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <!-- Three.js реализация - потому что переделываем, для не использования tsx и реакта-->
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script defer src="{% static 'vendor/three.r134.min.js' %}"></script>
   <style>
     :root{--bg:#05070d;--text:#f5f7ff;--muted:#a5adbf;--line:rgba(255,255,255,.13);--accent:#9b8cff;--cyan:#80d8ff}
     /* Скроллбар в цветовой гамме шапки */
@@ -237,18 +237,16 @@
       <canvas id="galaxyfield" aria-hidden="true"></canvas>
       <div class="container section-inner intro-grid">
         <div class="reveal">
-          <h2 class="section-title">Топ-50 планет,<br><span class="gradient-text">похожих на Землю</span></h2>
+          <h2 class="section-title">Кандидаты,<br><span class="gradient-text">похожие на Землю</span></h2>
           <p class="section-copy">Где-то далеко от нас вращаются планеты, которые могут напоминать наш дом. 
             Мы собираем интересные открытия и 
             превращаем сложные астрономические данные в понятное путешествие.
           </p>
           <div class="stat-strip">
-            <div class="stat"><strong>50</strong><span>Планет в подборке</span>
-            </div>
-            <div class="stat"><strong>∞</strong><span>Миров для открытия</span>
-            </div>
-            <div class="stat"><strong>1</strong><span>Общий дом</span>
-            </div>
+            {% if catalog %}
+            <div class="stat"><strong>{{ catalog.count }}</strong><span>Планет в подборке</span></div>
+            <div class="stat"><strong>{{ catalog.total }}</strong><span>Планет в каталоге NASA</span></div>
+            {% else %}<p>Каталог NASA временно недоступен.</p>{% endif %}
           </div>
         </div>
       </div>
